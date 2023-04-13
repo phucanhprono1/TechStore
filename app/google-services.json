@@ -1,0 +1,76 @@
+{
+  "project_info": {
+    "project_number": "896087359631",
+    "project_id": "techecommerceserver",
+    "storage_bucket": "techecommerceserver.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:896087359631:android:08d1a3f5cdbd747b0cb0fa",
+        "android_client_info": {
+          "package_name": "com.example.techecommerce"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "896087359631-7k2k23ch9ber7jbsn6jn62satrc3cnk5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5Pe7qxMyfttMnx5ev4ksVhxap4yeUsm8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "896087359631-7k2k23ch9ber7jbsn6jn62satrc3cnk5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:896087359631:android:de3e420ea1d3cc3a0cb0fa",
+        "android_client_info": {
+          "package_name": "com.example.techstore"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "896087359631-cg16ftja86lkihjvvj8kedpjjkgjdu8a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.techstore",
+            "certificate_hash": "e70e4c415595bf215e2e466b634afe5a242cfb84"
+          }
+        },
+        {
+          "client_id": "896087359631-7k2k23ch9ber7jbsn6jn62satrc3cnk5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5Pe7qxMyfttMnx5ev4ksVhxap4yeUsm8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "896087359631-7k2k23ch9ber7jbsn6jn62satrc3cnk5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
