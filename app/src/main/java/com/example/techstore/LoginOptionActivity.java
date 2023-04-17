@@ -25,6 +25,8 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.login.LoginBehavior;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -46,7 +48,7 @@ import java.util.UUID;
 
 public class LoginOptionActivity extends AppCompatActivity {
 
-    String regapi = new LocalNetwork().getUrl()+"/auth/register";
+//    String regapi = new LocalNetwork().getUrl()+"/auth/register";
     String logapi = new LocalNetwork().getUrl()+"/auth/loginfb";
     private FirebaseAuth mAuth;
     private CallbackManager mCallbackManager;
@@ -66,9 +68,9 @@ public class LoginOptionActivity extends AppCompatActivity {
         });
         mAuth = FirebaseAuth.getInstance();
         LoginButton loginButton = findViewById(R.id.button_sign_in_fb);
-
         mCallbackManager = CallbackManager.Factory.create();
         loginButton.setReadPermissions(Arrays.asList("email", "public_profile"));
+        LoginManager.getInstance().logOut();
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -121,7 +123,7 @@ public class LoginOptionActivity extends AppCompatActivity {
             JSONObject jsonbody = new JSONObject();
             jsonbody.put("name",user.getDisplayName());
             jsonbody.put("email",user.getEmail());
-            jsonbody.put("mobile",user.getPhoneNumber());
+            jsonbody.put("phone_number",user.getPhoneNumber());
             jsonbody.put("username", user.getUid());
             jsonbody.put("password", password);
             jsonbody.put("role","customer");
@@ -153,14 +155,7 @@ public class LoginOptionActivity extends AppCompatActivity {
                 public String getBodyContentType() {
                     return "application/json; charset=utf-8";
                 }
-//                        @Override
-//                        public byte[] getBody() {
-//                            try {
-//                                return jsonbody.toString().getBytes("utf-8");
-//                            } catch (UnsupportedEncodingException e) {
-//                                throw new RuntimeException(e);
-//                            }
-//                        }
+
             };
             q.add(objectRequest);
         } catch (JSONException e) {

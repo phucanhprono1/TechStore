@@ -1,28 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/login_bg"
     tools:context=".MainActivity">
+    <ImageView
+        android:id="@+id/logout"
+        android:layout_width="36dp"
+        android:layout_height="43dp"
+        android:layout_marginLeft="350dp"
+        android:layout_marginTop="50dp"
+        app:srcCompat="@drawable/ic_action_log_out" />
+
 
     <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="40dp"
         android:text="Name"
+        android:layout_gravity="center"
         android:textSize="20dp" />
 
-    <ImageView
-        android:id="@+id/logout"
-        android:layout_width="45dp"
-        android:layout_height="43dp"
-        android:layout_alignBottom="@+id/name"
-        android:layout_marginStart="260dp"
-        android:layout_marginBottom="3dp"
-        android:layout_toEndOf="@+id/name"
-        app:srcCompat="@drawable/ic_logout" />
 
-</RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        >
+        <TextView
+            android:id="@+id/Categories"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Categories"
+            android:textSize="50dp"
+            android:layout_gravity="center"
+            />
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="91dp"
+            android:layout_height="93dp"
+            android:layout_marginLeft="30dp"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/ic_action_cart" />
+    </LinearLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/categories"
+        android:layout_width="match_parent"
+        android:layout_height="207dp"
+        android:layout_margin="30dp"/>
+
+
+
+
+</LinearLayout>

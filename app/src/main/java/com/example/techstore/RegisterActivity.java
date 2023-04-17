@@ -82,9 +82,9 @@ public class RegisterActivity extends AppCompatActivity {
                     try {
                         JSONObject jsonbody = new JSONObject();
                         jsonbody.put("name",fulname);
-                        jsonbody.put("email",em);
-                        jsonbody.put("mobile",phone);
                         jsonbody.put("username",us);
+                        jsonbody.put("phone_number",phone);
+                        jsonbody.put("email",em);
                         jsonbody.put("password",pass);
                         final String jsb=jsonbody.toString();
                         StringRequest sr = new StringRequest(Request.Method.POST, regapi, new Response.Listener<String>() {
