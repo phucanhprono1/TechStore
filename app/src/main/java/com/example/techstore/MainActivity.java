@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
     String getAllCategory = new LocalNetwork().getUrl()+"/category/getAll";
     private CategoryAdapter categoryAdapter;
     String key;
+    String userId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
             public void onResponse(JSONObject response) {
                 try {
                     name.setText(response.getString("name"));
+                    userId = response.getString("id");
+
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
@@ -72,13 +75,11 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
 
             }
         }){
-
         };
         q.add(rqs);
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 try {
                     JSONObject jsonbody = new JSONObject();
                     jsonbody.put("role","customer");
@@ -96,11 +97,6 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
 
                         }
                     }){
-//                        @Override
-//                        public String getBodyContentType() {
-//                            return "application/x-www-form-urlencoded; charset=utf-8";
-//                        }
-
                         @Override
                         public HashMap<String, String> getParams() {
                             // Thêm các tham số cho POST request
@@ -117,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
             }
         });
         List<Category> category=new ArrayList<>();
-
         JsonArrayRequest requestCate = new JsonArrayRequest(Request.Method.GET, getAllCategory,null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -126,8 +121,6 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
                     try {
                         JSONObject catJson = response.getJSONObject(i);
                         Category cat= new Category(catJson.getInt("categoryId"),catJson.getString("categoryName"));
-//                        cat.setCategoryId());
-//                        cat.setCategoryName();
                         category.add(cat);
                         categoryAdapter.setCate(category);
 
@@ -154,12 +147,12 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         rcv.setLayoutManager(linearLayoutManager);
         rcv.setAdapter(categoryAdapter);
     }
-
     @Override
     public void onItemClick(Category cate) {
         Intent i = new Intent(MainActivity.this,ProductActivity.class);
         i.putExtra("cat", cate);
         i.putExtra("key",key);
+        i.putExtra("id",userId);
         startActivity(i);
     }
 }

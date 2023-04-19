@@ -29,6 +29,7 @@ import java.util.List;
 public class ProductActivity extends AppCompatActivity implements ProductAdapter.ProductClickListener {
     String productByCategoryId = new LocalNetwork().getUrl()+"/products/view/";
     String key;
+    String userId;
     ProductAdapter productAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,7 @@ public class ProductActivity extends AppCompatActivity implements ProductAdapter
         Category c = (Category) getIntent().getParcelableExtra("cat");
         Bundle b = getIntent().getExtras();
         key=b.getString("key");
+        userId = b.getString("id");
         TextView category_name = (TextView) findViewById(R.id.category_name);
         category_name.setText(c.getCategoryName());
         RecyclerView recyclerView = findViewById(R.id.products);
@@ -86,6 +88,7 @@ public class ProductActivity extends AppCompatActivity implements ProductAdapter
     public void onItemClick(Product product) {
         Intent i = new Intent(ProductActivity.this,ProductDetailActivity.class);
         i.putExtra("key",key);
+        i.putExtra("id",userId);
         i.putExtra("prod",product);
         startActivity(i);
     }
