@@ -44,7 +44,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public void onBindViewHolder(ProductViewHolder holder, int position) {
         Glide.with(holder.itemView).load(products.get(position).getImage()).into(holder.thumb);
         holder.name.setText(products.get(position).getProductName());
-        holder.price.setText(String.valueOf(products.get(position).getPrice()));
+        float fl = products.get(position).getPrice();
+        String format = String.format("%.1f",fl);
+        holder.price.setText(format);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -7,13 +7,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.techstore.adapter.ProductAdapter;
 import com.example.techstore.models.Category;
@@ -28,21 +28,27 @@ import java.util.List;
 
 public class ProductActivity extends AppCompatActivity implements ProductAdapter.ProductClickListener {
     String productByCategoryId = new LocalNetwork().getUrl()+"/products/view/";
-    String key;
-    String userId;
+    String key1;
+    Bundle bundle = new Bundle();
     ProductAdapter productAdapter;
+    int uid;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product);
         Category c = (Category) getIntent().getParcelableExtra("cat");
-        Bundle b = getIntent().getExtras();
-        key=b.getString("key");
-        userId = b.getString("id");
+//        currentCustomerDTO = (CurrentCustomerDTO) getIntent().getParcelableExtra("id");
+
+        key1=getIntent().getStringExtra("key");
+        uid = getIntent().getIntExtra("id",0);
+
+        Toast.makeText(getApplicationContext(),"key1: "+key1,Toast.LENGTH_SHORT).show();
+//        userId = b.getString("id");
         TextView category_name = (TextView) findViewById(R.id.category_name);
         category_name.setText(c.getCategoryName());
         RecyclerView recyclerView = findViewById(R.id.products);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
         RequestQueue q = Volley.newRequestQueue(getApplicationContext());
 
@@ -59,10 +65,9 @@ public class ProductActivity extends AppCompatActivity implements ProductAdapter
                                 Product p = new Product();
                                 p.setProductId(catJson.getInt("productId"));
                                 p.setProductName(catJson.getString("productName"));
-                                p.setPrice(catJson.getDouble("price"));
+                                p.setPrice((float) catJson.getDouble("price"));
                                 p.setImage(catJson.getString("image"));
                                 p.setDescription(catJson.getString("description"));
-                                p.setQuantity(catJson.getInt("quantity"));
                                 productList.add(p);
                                 productAdapter.setProduct(productList);
                             }
@@ -86,10 +91,10 @@ public class ProductActivity extends AppCompatActivity implements ProductAdapter
 
     @Override
     public void onItemClick(Product product) {
-        Intent i = new Intent(ProductActivity.this,ProductDetailActivity.class);
-        i.putExtra("key",key);
-        i.putExtra("id",userId);
-        i.putExtra("prod",product);
-        startActivity(i);
+        Intent i1 = new Intent(getApplicationContext(),ProductDetailActivity.class);
+        i1.putExtra("prod",product);
+        i1.putExtra("key1",key1);
+        i1.putExtra("id",uid);
+        startActivity(i1);
     }
 }

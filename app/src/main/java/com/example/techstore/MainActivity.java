@@ -3,12 +3,18 @@ package com.example.techstore;
 import android.content.Intent;
 import android.os.Bundle;
 
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,8 +27,16 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.techstore.adapter.CategoryAdapter;
+import com.example.techstore.config.StaticConfig;
 import com.example.techstore.models.Category;
+import com.example.techstore.models.CurrentCustomerDTO;
 import com.example.techstore.models.Customer;
+import com.example.techstore.retrofit.ApiService;
+import com.facebook.login.LoginManager;
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -40,35 +54,68 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class MainActivity extends AppCompatActivity implements CategoryAdapter.CategoryClickListener {
     String logoutapi = new LocalNetwork().getUrl()+"/auth/logout";
     String currentuser = new LocalNetwork().getUrl()+"/auth/currentUser";
     String getAllCategory = new LocalNetwork().getUrl()+"/category/getAll";
     private CategoryAdapter categoryAdapter;
     String key;
-    String userId;
+    View header;
+    DrawerLayout drawerLayout;
+    CurrentCustomerDTO currentCustomerDTO;
+    Toolbar toolbar;
+    DatabaseReference userReference = FirebaseDatabase.getInstance("https://techecommerceserver-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("currentUser");
+    private RequestQueue q;
+    int uid=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ImageView logout = findViewById(R.id.logout);
-        TextView name = findViewById(R.id.name);
+        NavigationView nv = findViewById(R.id.nav_view);
+        header = nv.getHeaderView(0);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        toolbar= findViewById(R.id.toolbar);
+        currentCustomerDTO=new CurrentCustomerDTO();
+        setSupportActionBar(toolbar);
+        nv.bringToFront();
+        ActionBarDrawerToggle toggle=new ActionBarDrawerToggle(this,drawerLayout ,toolbar,R.string.navigation_drawer_open,R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
 
+
+//        ImageView logout = findViewById(R.id.log_out);
+        TextView name = header.findViewById(R.id.name);
+        q = Volley.newRequestQueue(getApplicationContext());
         Bundle b = getIntent().getExtras();
 
-        String key = b.getString("key");
-        RequestQueue q = Volley.newRequestQueue(getApplicationContext());
+        TextView phone  = header.findViewById(R.id.phonenumberLabel);
+
+        key = b.getString("key");
+
+        uid=b.getInt("id");
+        StaticConfig.UID= String.valueOf(uid);
+
         JsonObjectRequest rqs = new JsonObjectRequest(Request.Method.GET, currentuser+"?key="+key,null, new Response.Listener<JSONObject>() {
+
             @Override
             public void onResponse(JSONObject response) {
                 try {
+
                     name.setText(response.getString("name"));
-                    userId = response.getString("id");
+                    userReference.child(key).setValue(response.getInt("id"));
+//                    phone.setText(response.getString("phone"));
+//                    passdata(response.getInt("id"));
 
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
             }
+
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -77,41 +124,63 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         }){
         };
         q.add(rqs);
-        logout.setOnClickListener(new View.OnClickListener() {
+//        phone.setText(key);
+        nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onClick(View view) {
-                try {
-                    JSONObject jsonbody = new JSONObject();
-                    jsonbody.put("role","customer");
-                    jsonbody.put("key",key);
-                    String requestBody = jsonbody.toString();
-                    StringRequest sr = new StringRequest(Request.Method.POST, logoutapi, new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            Intent i = new Intent(MainActivity.this, LoginOptionActivity.class);
-                            startActivity(i);
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch(item.getItemId()) {
+                    case R.id.cart_button:
+                        Intent intent1=new Intent(getApplicationContext(),CartActivity.class);
+                        intent1.putExtra("key",key);
+                        intent1.putExtra("id",uid);
+                        startActivity(intent1);
+                        break;
+                    case R.id.log_out:
 
+                        Intent intent2=new Intent(MainActivity.this,LoginOptionActivity.class);
+                        try {
+                            JSONObject jsonbody = new JSONObject();
+                            jsonbody.put("role","customer");
+                            jsonbody.put("key",key);
+                            String requestBody = jsonbody.toString();
+                            StringRequest sr = new StringRequest(Request.Method.POST, logoutapi, new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    Intent i = new Intent(MainActivity.this, LoginOptionActivity.class);
+                                    userReference.child(key).removeValue();
+                                    LoginManager.getInstance().logOut();
+                                    startActivity(i);
+                                }
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+
+                                }
+                            }){
+                                @Override
+                                public HashMap<String, String> getParams() {
+                                    // Thêm các tham số cho POST request
+                                    HashMap<String, String> params = new HashMap<>();
+                                    params.put("role", "customer");
+                                    params.put("key", key);
+
+                                    return params;
+                                }
+                            };
+                            q.add(sr);
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
                         }
-                    }){
-                        @Override
-                        public HashMap<String, String> getParams() {
-                            // Thêm các tham số cho POST request
-                            HashMap<String, String> params = new HashMap<>();
-                            params.put("role", "customer");
-                            params.put("key", key);
-                            return params;
-                        }
-                    };
-                    q.add(sr);
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                        startActivity(intent2);
+                        break;
+
                 }
+
+                return true;
             }
+
         });
+
         List<Category> category=new ArrayList<>();
         JsonArrayRequest requestCate = new JsonArrayRequest(Request.Method.GET, getAllCategory,null, new Response.Listener<JSONArray>() {
             @Override
@@ -147,12 +216,40 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         rcv.setLayoutManager(linearLayoutManager);
         rcv.setAdapter(categoryAdapter);
     }
+
+
+
+
     @Override
     public void onItemClick(Category cate) {
-        Intent i = new Intent(MainActivity.this,ProductActivity.class);
+        Intent i=new Intent(MainActivity.this,ProductActivity.class);
         i.putExtra("cat", cate);
-        i.putExtra("key",key);
-        i.putExtra("id",userId);
+        i.putExtra("key1",key);
+        i.putExtra("id",uid);
         startActivity(i);
+    }
+
+    @Override
+    public void onBackPressed() {
+        ApiService apiService = new Retrofit.Builder()
+                .baseUrl("logoutapi")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(ApiService.class);
+        Call<String> call = apiService.logout(key,"customer");
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, retrofit2.Response<String> response) {
+                FirebaseAuth.getInstance().signOut();
+                LoginManager.getInstance().logOut();
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                // handle failure
+            }
+        });
+
+        super.onBackPressed();
     }
 }

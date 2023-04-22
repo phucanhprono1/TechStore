@@ -63,6 +63,7 @@ public class LoginActivity extends AppCompatActivity {
                                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
                                     i.putExtra("username",response.getString("username"));
                                     i.putExtra("key",response.getString("key"));
+                                    i.putExtra("id",response.getString("id"));
                                     startActivity(i);
                                 }
                                 Toast.makeText(getApplicationContext(),response.getString("response"),Toast.LENGTH_SHORT).show();

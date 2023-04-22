@@ -69,6 +69,7 @@ public class LoginOptionActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         LoginButton loginButton = findViewById(R.id.button_sign_in_fb);
         mCallbackManager = CallbackManager.Factory.create();
+//        LoginManager.getInstance().signInWithReadPermissions(this, Arrays.asList("email", "public_profile"));
         loginButton.setReadPermissions(Arrays.asList("email", "public_profile"));
         LoginManager.getInstance().logOut();
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
@@ -123,7 +124,7 @@ public class LoginOptionActivity extends AppCompatActivity {
             JSONObject jsonbody = new JSONObject();
             jsonbody.put("name",user.getDisplayName());
             jsonbody.put("email",user.getEmail());
-            jsonbody.put("phone_number",user.getPhoneNumber());
+            jsonbody.put("phone_number",user.getPhoneNumber()+"0123456789");
             jsonbody.put("username", user.getUid());
             jsonbody.put("password", password);
             jsonbody.put("role","customer");
@@ -137,6 +138,7 @@ public class LoginOptionActivity extends AppCompatActivity {
                             Intent i = new Intent(LoginOptionActivity.this, MainActivity.class);
                             i.putExtra("username",response.getString("username"));
                             i.putExtra("key",response.getString("key"));
+                            i.putExtra("id",response.getInt("id"));
                             startActivity(i);
                         }
                         Toast.makeText(getApplicationContext(),response.getString("response"),Toast.LENGTH_SHORT).show();
@@ -148,6 +150,7 @@ public class LoginOptionActivity extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(getApplicationContext(),"User logged-in",Toast.LENGTH_SHORT).show();
                     Log.e("VOLLEY", error.toString());
                 }
             }){

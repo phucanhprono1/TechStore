@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:orientation="vertical"
+    android:background="#FF9800">
+
+    <ImageView
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+
+        android:src="@drawable/ic_blank_user" />
+
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_marginTop="14dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="username"
+        android:textSize="15sp"
+
+        />
+
+
+    <TextView
+        android:layout_marginTop="14dp"
+        android:id="@+id/phonenumberLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone" />
+
+
+
+
+</LinearLayout>
