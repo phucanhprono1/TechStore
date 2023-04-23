@@ -14,12 +14,21 @@ public class Product implements Parcelable {
     private String image;
     private String size;
     private String manufacturer;
+    private int quantity;
+
+    public Product(int productId, String productName, float price, String image) {
+        this.productId = productId;
+        this.productName = productName;
+        this.price = price;
+        this.image = image;
+    }
+
     private int numberSell;
 
     public Product() {
     }
 
-    public Product(int productId, String productName, float price, String color, String description, String image, String size, String manufacturer, int numberSell, Category category) {
+    public Product(int productId, String productName, float price, String color, String description, String image, String size, String manufacturer, int quantity, int numberSell, Category category) {
         this.productId = productId;
         this.productName = productName;
         this.price = price;
@@ -28,7 +37,7 @@ public class Product implements Parcelable {
         this.image = image;
         this.size = size;
         this.manufacturer = manufacturer;
-
+        this.quantity=quantity;
         this.numberSell = numberSell;
         this.category = category;
     }
@@ -43,6 +52,7 @@ public class Product implements Parcelable {
         image = in.readString();
         size = in.readString();
         manufacturer = in.readString();
+        quantity=in.readInt();
         numberSell = in.readInt();
         category = in.readParcelable(Category.class.getClassLoader());
     }
@@ -157,6 +167,7 @@ public class Product implements Parcelable {
         parcel.writeString(image);
         parcel.writeString(size);
         parcel.writeString(manufacturer);
+        parcel.writeInt(quantity);
         parcel.writeInt(numberSell);
         parcel.writeParcelable(category, i);
     }

@@ -1,6 +1,6 @@
 package com.example.techstore.models;
 
-public class ItemCart{
+public class CartItem {
     private int quantity;
     private int id;
 
@@ -29,4 +29,5 @@ public class ItemCart{
     public void setProduct(Product product) {
         this.product = product;
     }
+//    private Cart cart;
 }

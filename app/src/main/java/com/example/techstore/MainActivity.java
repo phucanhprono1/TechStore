@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
 
 
 //        ImageView logout = findViewById(R.id.log_out);
-        TextView name = header.findViewById(R.id.name);
+        TextView name = header.findViewById(R.id.name11);
         q = Volley.newRequestQueue(getApplicationContext());
         Bundle b = getIntent().getExtras();
 

@@ -9,4 +9,5 @@ import retrofit2.http.Query;
 public interface ApiService {
     @POST("/logout")
     Call<String> logout(@Query("role") String role, @Query("key") String key);
+
 }
