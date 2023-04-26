@@ -3,6 +3,7 @@ package com.example.techstore;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,18 +27,20 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductActivity extends AppCompatActivity implements ProductAdapter.ProductClickListener {
+public class ProductActivity extends AppCompatActivity implements ProductAdapter.ProductClickListener, SwipeRefreshLayout.OnRefreshListener {
     String productByCategoryId = new LocalNetwork().getUrl()+"/products/view/";
     String key1;
     Bundle bundle = new Bundle();
     ProductAdapter productAdapter;
     int uid;
-
+    SwipeRefreshLayout swipeRefreshLayout;
+    List<Product> productList = new ArrayList<>();
+    Category c;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product);
-        Category c = (Category) getIntent().getParcelableExtra("cat");
+        c = (Category) getIntent().getParcelableExtra("cat");
 //        currentCustomerDTO = (CurrentCustomerDTO) getIntent().getParcelableExtra("id");
 
         key1=getIntent().getStringExtra("key");
@@ -49,11 +52,12 @@ public class ProductActivity extends AppCompatActivity implements ProductAdapter
         category_name.setText(c.getCategoryName());
         RecyclerView recyclerView = findViewById(R.id.products);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout1);
+        swipeRefreshLayout.setOnRefreshListener(this);
         RequestQueue q = Volley.newRequestQueue(getApplicationContext());
 
 
-        List<Product> productList = new ArrayList<>();
+//        List<Product> productList = new ArrayList<>();
 
         JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, productByCategoryId+c.getCategoryId(),null,
                 new Response.Listener<JSONArray>() {
@@ -97,4 +101,44 @@ public class ProductActivity extends AppCompatActivity implements ProductAdapter
         i1.putExtra("id",uid);
         startActivity(i1);
     }
+
+    @Override
+    public void onRefresh() {
+        productList.clear();
+        swipeRefreshLayout.setRefreshing(false);
+        RequestQueue q = Volley.newRequestQueue(this);
+//        List<Product> productList = new ArrayList<>();
+
+        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, productByCategoryId+c.getCategoryId(),null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        for (int i = 0; i < response.length(); i++) {
+                            try {
+                                JSONObject catJson = response.getJSONObject(i);
+                                Product p = new Product();
+                                p.setProductId(catJson.getInt("productId"));
+                                p.setProductName(catJson.getString("productName"));
+                                p.setPrice((float) catJson.getDouble("price"));
+                                p.setImage(catJson.getString("image"));
+                                p.setDescription(catJson.getString("description"));
+                                productList.add(p);
+
+                            }
+
+                            catch (JSONException e) {
+                                throw new RuntimeException(e);
+                            }
+                            productAdapter.setProduct(productList);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        q.add(stringRequest);
+    }
+
 }

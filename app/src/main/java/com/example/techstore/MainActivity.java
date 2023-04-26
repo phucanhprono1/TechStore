@@ -17,6 +17,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -59,7 +60,7 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MainActivity extends AppCompatActivity implements CategoryAdapter.CategoryClickListener {
+public class MainActivity extends AppCompatActivity implements CategoryAdapter.CategoryClickListener, SwipeRefreshLayout.OnRefreshListener {
     String logoutapi = new LocalNetwork().getUrl()+"/auth/logout";
     String currentuser = new LocalNetwork().getUrl()+"/auth/currentUser";
     String getAllCategory = new LocalNetwork().getUrl()+"/category/getAll";
@@ -71,7 +72,9 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
     Toolbar toolbar;
     DatabaseReference userReference = FirebaseDatabase.getInstance("https://techecommerceserver-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("currentUser");
     private RequestQueue q;
+    SwipeRefreshLayout swipeRefreshLayout;
     int uid=0;
+    List<Category> category=new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,8 +89,8 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         ActionBarDrawerToggle toggle=new ActionBarDrawerToggle(this,drawerLayout ,toolbar,R.string.navigation_drawer_open,R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-
-
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout2);
+        swipeRefreshLayout.setOnRefreshListener(this);
 //        ImageView logout = findViewById(R.id.log_out);
         TextView name = header.findViewById(R.id.name11);
         q = Volley.newRequestQueue(getApplicationContext());
@@ -181,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
 
         });
 
-        List<Category> category=new ArrayList<>();
+//        List<Category> category=new ArrayList<>();
         JsonArrayRequest requestCate = new JsonArrayRequest(Request.Method.GET, getAllCategory,null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -251,5 +254,40 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         });
 
         super.onBackPressed();
+    }
+
+    @Override
+    public void onRefresh() {
+        category.clear();
+        swipeRefreshLayout.setRefreshing(false);
+//        RequestQueue q = Volley.newRequestQueue(this);
+        JsonArrayRequest requestCate = new JsonArrayRequest(Request.Method.GET, getAllCategory,null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+
+                for (int i = 0; i < response.length(); i++) {
+                    try {
+                        JSONObject catJson = response.getJSONObject(i);
+                        Category cat= new Category(catJson.getInt("categoryId"),catJson.getString("categoryName"));
+                        category.add(cat);
+                        categoryAdapter.setCate(category);
+
+
+                    }
+
+                    catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }){
+
+        };
+        q.add(requestCate);
     }
 }

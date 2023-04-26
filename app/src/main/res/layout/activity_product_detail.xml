@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/login_bg"
     tools:context=".ProductDetailActivity">
 
 
@@ -53,24 +54,24 @@
                 android:id="@+id/manufactur"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="50dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="7dp"
                 android:text="manufacturer" />
 
             <TextView
                 android:id="@+id/prod_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="50dp"
-                android:layout_marginBottom="15dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="10dp"
                 android:text="Price" />
 
             <TextView
                 android:id="@+id/name_prod"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="50dp"
-                android:layout_marginBottom="11dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="10dp"
                 android:text="name" />
         </LinearLayout>
 
