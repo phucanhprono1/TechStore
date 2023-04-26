@@ -31,26 +31,20 @@ import com.example.techstore.adapter.CategoryAdapter;
 import com.example.techstore.config.StaticConfig;
 import com.example.techstore.models.Category;
 import com.example.techstore.models.CurrentCustomerDTO;
-import com.example.techstore.models.Customer;
+
 import com.example.techstore.retrofit.ApiService;
 import com.facebook.login.LoginManager;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
     SwipeRefreshLayout swipeRefreshLayout;
     int uid=0;
     List<Category> category=new ArrayList<>();
+    private ApiService logoutApi;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,10 +92,19 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         TextView name = header.findViewById(R.id.name11);
         q = Volley.newRequestQueue(getApplicationContext());
         Bundle b = getIntent().getExtras();
+        logoutApi = new Retrofit.Builder()
+                .baseUrl("logoutapi")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(ApiService.class);
+
+
+
 
         TextView phone  = header.findViewById(R.id.phonenumberLabel);
 
         key = b.getString("key");
+        StaticConfig.CURRENT_KEY = key;
 
         uid=b.getInt("id");
         StaticConfig.UID= String.valueOf(uid);
@@ -289,5 +295,27 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
 
         };
         q.add(requestCate);
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ApiService apiService = new Retrofit.Builder()
+                .baseUrl("logoutapi")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(ApiService.class);
+        Call<String> call = apiService.logout(StaticConfig.CURRENT_KEY,"customer");
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, retrofit2.Response<String> response) {
+                FirebaseAuth.getInstance().signOut();
+                LoginManager.getInstance().logOut();
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                // handle failure
+            }
+        });
     }
 }

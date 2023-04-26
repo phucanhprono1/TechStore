@@ -1,5 +1,9 @@
 package com.example.techstore;
 
+import static android.content.ContentValues.TAG;
+
+import android.Manifest;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -15,12 +19,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -82,7 +89,9 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
     private PlacesClient placesClient;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private boolean mLocationPermissionGranted;
-
+    Spinner spinner;
+    private ArrayAdapter<String> paymentAdapter;
+    TextView location;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,13 +100,39 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
         key = b.getString("key");
         uid = b.getInt("id");
         String key1 = key;
-        mLocationPermissionGranted = checkPermission();
+//        mLocationPermissionGranted = checkPermission();
+//
+//        // Yêu cầu quyền truy cập vị trí
+//        if (!mLocationPermissionGranted) {
+//            requestPermission();
+//        }
+        location = findViewById(R.id.tvLocation);
+        location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-        // Yêu cầu quyền truy cập vị trí
-        if (!mLocationPermissionGranted) {
-            requestPermission();
-        }
+                    ActivityCompat.requestPermissions(CartActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                    return;
+                }
 
+
+                FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+                fusedLocationProviderClient.getLastLocation().addOnSuccessListener(CartActivity.this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location != null) {
+                            double latitude = location.getLatitude();
+                            double longitude = location.getLongitude();
+                            StaticConfig.CURRENT_LOCATION = "https://www.google.com/maps/search/?api=1&query=" + latitude + "," + longitude;
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(StaticConfig.CURRENT_LOCATION));
+                            startActivity(intent);
+                        }
+                    }
+                });
+                Toast.makeText(CartActivity.this, "Đã lấy vị trí hiện tại"+StaticConfig.CURRENT_LOCATION, Toast.LENGTH_SHORT).show();
+            }
+        });
         addressEdt = findViewById(R.id.inputAddress);
         cityEdt = findViewById(R.id.inputCity);
         order = findViewById(R.id.buttonPlaceYourOrder);
@@ -105,27 +140,32 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
         totalFee = findViewById(R.id.tvTotalAmount);
         map = findViewById(R.id.mapFrag);
 
+        spinner=findViewById(R.id.paymentMethodSpinner);
+        paymentAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new String[]{"COD", "Zalo Pay", "ATM"});
+        paymentAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(paymentAdapter);
+
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
 
-        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
-
-        // Đặt danh sách các trường thông tin của địa điểm cần trả về
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
-
-        // Đăng ký lắng nghe sự kiện khi chọn địa điểm từ AutocompleteSupportFragment
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-                // Xử lý địa điểm đã chọn
-            }
-
-            @Override
-            public void onError(Status status) {
-                // Xử lý lỗi
-            }
-        });
+//        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+//                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+//
+//        // Đặt danh sách các trường thông tin của địa điểm cần trả về
+//        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+//
+//        // Đăng ký lắng nghe sự kiện khi chọn địa điểm từ AutocompleteSupportFragment
+//        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+//            @Override
+//            public void onPlaceSelected(Place place) {
+//                // Xử lý địa điểm đã chọn
+//            }
+//
+//            @Override
+//            public void onError(Status status) {
+//                // Xử lý lỗi
+//            }
+//        });
 
         map.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -214,6 +254,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
             public void onClick(View view) {
                 String address = addressEdt.getText().toString();
                 String city = cityEdt.getText().toString();
+                String paymentMethod = spinner.getSelectedItem().toString();
                 if (address.isEmpty() || city.isEmpty()) {
                     Toast.makeText(CartActivity.this, "Please enter your address and city", Toast.LENGTH_SHORT).show();
                 } else {
@@ -225,6 +266,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
                         addressObj.put("city", city);
                         jsonObject.put("address", addressObj);
                         jsonObject.put("location", StaticConfig.CURRENT_LOCATION);
+                        jsonObject.put("paymentMethod", paymentMethod);
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -233,7 +275,9 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
                         @Override
                         public void onResponse(JSONObject response) {
                             Toast.makeText(CartActivity.this, "Order successfully", Toast.LENGTH_SHORT).show();
+
                             Intent intent = new Intent(CartActivity.this, MainActivity.class);
+                            intent.putExtra("key", StaticConfig.CURRENT_KEY);
                             startActivity(intent);
                         }
                     }, new Response.ErrorListener() {
@@ -249,25 +293,27 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
     }
 
 
+    // Kiểm tra quyền truy cập vị trí
+    private boolean checkPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-//    private boolean checkPermission() {
-//        if (ContextCompat.checkSelfPermission(this,
-//                Manifest.permission.ACCESS_FINE_LOCATION)
-//                == PackageManager.PERMISSION_GRANTED) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
-//
-//    private void requestPermission() {
-//        ActivityCompat.requestPermissions(this,
-//                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-//    }
-//
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+    }
+
+    //
 //    @Override
 //    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 //        if (requestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
 //            if (grantResults.length > 0
 //                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -343,7 +389,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
     private void getCurrentLocation() {
         if (mLocationPermissionGranted) {
             LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
                 //    ActivityCompat#requestPermissions
                 // here to request the missing permissions, and then overriding
@@ -357,12 +403,17 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
             if (location != null) {
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
-                StaticConfig.CURRENT_LOCATION = "https://www.google.com/maps/search/?api=1&query=" + latitude + "," + longitude;
-            // Sử dụng url ở đây để chia sẻ vị trí hiện tại
+
+                // Lấy link Google Map vị trí hiện tại
+                StaticConfig.CURRENT_LOCATION = "http://maps.google.com/maps?q=" + latitude + "," + longitude;
+                Toast.makeText(this, "Location: " + StaticConfig.CURRENT_LOCATION, Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "getCurrentLocation: url = " + StaticConfig.CURRENT_LOCATION);
             } else {
-            // Nếu không thể lấy vị trí hiện tại
+                // Nếu không thể lấy vị trí hiện tại
+                Log.d(TAG, "getCurrentLocation: location is null");
             }
         }
     }
+
 
 }

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@drawable/login_bg"
     tools:context=".ProductActivity">
     <include
         layout="@layout/navigation_bar"
@@ -36,8 +37,8 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/products"
                 android:layout_width="match_parent"
-                android:layout_height="400dp"
-                android:layout_margin="30dp"/>
+                android:layout_height="500dp"
+                android:layout_margin="30dp" />
         </LinearLayout>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
