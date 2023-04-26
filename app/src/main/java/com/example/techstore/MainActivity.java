@@ -45,10 +45,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
@@ -92,11 +96,11 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         TextView name = header.findViewById(R.id.name11);
         q = Volley.newRequestQueue(getApplicationContext());
         Bundle b = getIntent().getExtras();
-        logoutApi = new Retrofit.Builder()
-                .baseUrl("logoutapi")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(ApiService.class);
+//        logoutApi = new Retrofit.Builder()
+//                .baseUrl("logoutapi")
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build()
+//                .create(ApiService.class);
 
 
 
@@ -241,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
     @Override
     public void onBackPressed() {
         ApiService apiService = new Retrofit.Builder()
-                .baseUrl("logoutapi")
+                .baseUrl(logoutapi)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(ApiService.class);
@@ -296,26 +300,43 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         };
         q.add(requestCate);
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ApiService apiService = new Retrofit.Builder()
-                .baseUrl("logoutapi")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(ApiService.class);
-        Call<String> call = apiService.logout(StaticConfig.CURRENT_KEY,"customer");
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, retrofit2.Response<String> response) {
-                FirebaseAuth.getInstance().signOut();
-                LoginManager.getInstance().logOut();
-            }
+        try {
+            JSONObject jsonbody = new JSONObject();
+            jsonbody.put("role","customer");
+            jsonbody.put("key",key);
+            String requestBody = jsonbody.toString();
+            StringRequest sr = new StringRequest(Request.Method.POST, logoutapi, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
 
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                // handle failure
-            }
-        });
+                    userReference.child(key).removeValue();
+                    LoginManager.getInstance().logOut();
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            }){
+                @Override
+                public HashMap<String, String> getParams() {
+                    // Thêm các tham số cho POST request
+                    HashMap<String, String> params = new HashMap<>();
+                    params.put("role", "customer");
+                    params.put("key", key);
+
+                    return params;
+                }
+            };
+            q.add(sr);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        q.cancelAll(this);
     }
 }
