@@ -2,22 +2,18 @@ package com.example.techstore;
 
 import static android.content.ContentValues.TAG;
 
-import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
 import com.example.techstore.adapter.OrderAdapter;
 import com.example.techstore.config.StaticConfig;
 import com.example.techstore.models.OrderItem;
@@ -32,38 +28,20 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class OrderViewFragment extends Fragment {
-
-
+public class OrderViewActivity extends AppCompatActivity {
     private OrderAdapter orderAdapter;
-    private List<Orders> orderList = new ArrayList<>();
-    public OrderViewFragment() {
-        // Required empty public constructor
-    }
-
+    private List<Orders> orderList;
     RequestQueue q ;
     private RecyclerView recyclerView;
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        q = Volley.newRequestQueue(getContext());
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_order_view, container, false);
-        recyclerView = view.findViewById(R.id.order_history_recycler_view);
+        setContentView(R.layout.activity_order_view);
+        recyclerView = findViewById(R.id.order_history_recycler_view1);
         orderAdapter = new OrderAdapter();
         getOrderList();
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(orderAdapter);
-
-        return view;
     }
     private void getOrderList() {
         // Call API to get order list
@@ -71,11 +49,10 @@ public class OrderViewFragment extends Fragment {
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null,
                 response -> {
                     Log.d(TAG, "Response: " + response.toString());
-
+                    Orders o = new Orders();
                     try {
-
                         for(int i = 0;i< response.length();i++){
-                            Orders o = new Orders();
+
                             JSONObject re = response.getJSONObject(i);
                             o.setOrderId(re.getInt("orderId"));
                             o.setDate((String) re.getString("date"));
@@ -92,10 +69,7 @@ public class OrderViewFragment extends Fragment {
                                 OrderItem oi = gson.fromJson(re2.toString(), new TypeToken<OrderItem>(){}.getType());
                                 oit.add(oi);
                             }
-                            o.setOrderItems(oit);
-                            orderList.add(o);
                         }
-                        orderAdapter.setOrdersList(orderList);
 
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
@@ -105,8 +79,16 @@ public class OrderViewFragment extends Fragment {
                 },
                 error -> {
                     Log.e(TAG, "Error occurred while getting order list: " + error.getMessage());
-                    Toast.makeText(getContext(), "Error occurred while getting order list", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Error occurred while getting order list", Toast.LENGTH_SHORT).show();
                 });
         q.add(request);
+    }
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent i = new Intent(getApplicationContext(),MainActivity.class);
+        i.putExtra("key",StaticConfig.CURRENT_KEY);
+        startActivity(i);
+        finish();
     }
 }

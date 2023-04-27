@@ -35,11 +35,11 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         Orders order = ordersList.get(position);
         // Đưa các giá trị của đơn hàng vào ViewHolder tương ứng
-        holder.orderIdTextView.setText(String.valueOf(order.getOrderId()));
-        holder.dateTextView.setText(order.getDate().toString());
-        holder.orderStatusTextView.setText(order.getOrderStatus());
-        holder.totalPriceTextView.setText(String.valueOf(order.getTotal_price()));
-        holder.paymentMethodTextView.setText(order.getPaymentMethod());
+//        holder.orderIdTextView.setText(String.valueOf(order.getOrderId()));
+        holder.dateTextView.setText("Ngày Đặt"+order.getDate());
+        holder.orderStatusTextView.setText("Trạng thái đơn hàng"+order.getOrderStatus());
+        holder.totalPriceTextView.setText("Tổng tiền "+String.valueOf(order.getTotal_price()));
+        holder.paymentMethodTextView.setText("Hình thức thanh toán"+order.getPaymentMethod());
         // Hiển thị danh sách các sản phẩm trong đơn hàng
         holder.orderItemsRecyclerView.setAdapter(new OrderItemsAdapter(order.getOrderItems()));
     }

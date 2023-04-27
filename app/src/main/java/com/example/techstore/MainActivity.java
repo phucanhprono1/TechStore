@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -194,7 +195,12 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
                         startActivity(intent3);
                         break;
                     case R.id.order_history:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new OrderViewFragment()).commit();
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, new OrderViewFragment())
+                                .commit();;
+//                        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                        drawerLayout.closeDrawer(GravityCompat.START);
+                        break;
                 }
 
                 return true;

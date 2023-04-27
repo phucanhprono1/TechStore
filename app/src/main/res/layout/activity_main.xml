@@ -10,10 +10,7 @@
     android:id="@+id/drawer_layout"
     tools:context=".MainActivity">
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"
@@ -26,10 +23,14 @@
 
 
     </com.google.android.material.navigation.NavigationView>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/swipeRefreshLayout2">
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -61,8 +62,15 @@
                 android:layout_marginEnd="30dp"
                 android:layout_marginBottom="30dp" />
 
+            <FrameLayout
+                android:id="@+id/fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                android:layout_below="@+id/categories"
+                android:layout_marginTop="0dp" />
 
         </RelativeLayout>
+        </ScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 

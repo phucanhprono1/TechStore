@@ -5,25 +5,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Orders {
-    private Integer orderId;
+    private int orderId;
 
-    private LocalDateTime date;
+    private String date;
     private String orderStatus;
     private String location;
 
-    public Integer getOrderId() {
+    public int getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(Integer orderId) {
+    public void setOrderId(int orderId) {
         this.orderId = orderId;
     }
 
-    public LocalDateTime getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(String date) {
         this.date = date;
     }
 

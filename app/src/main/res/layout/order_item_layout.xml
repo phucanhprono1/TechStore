@@ -13,7 +13,7 @@
         android:layout_marginTop="16dp"
         android:text="Order ID:"
         android:textColor="@android:color/black"
-        android:textSize="18sp"
+        android:textSize="12dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -24,7 +24,7 @@
         android:layout_marginTop="16dp"
         android:text="Date:"
         android:textColor="@android:color/black"
-        android:textSize="18sp"
+        android:textSize="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -36,7 +36,7 @@
         android:layout_marginTop="8dp"
         android:text="Order Status:"
         android:textColor="@android:color/black"
-        android:textSize="16sp"
+        android:textSize="12dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/order_id_text_view" />
 
@@ -47,7 +47,7 @@
         android:layout_marginTop="8dp"
         android:text="Total Price:"
         android:textColor="@android:color/black"
-        android:textSize="16sp"
+        android:textSize="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/date_text_view" />
 
@@ -59,7 +59,7 @@
         android:layout_marginTop="8dp"
         android:text="Payment Method:"
         android:textColor="@android:color/black"
-        android:textSize="16sp"
+        android:textSize="12dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/order_status_text_view" />
 
