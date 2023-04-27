@@ -1,5 +1,6 @@
 package com.example.techstore.adapter;
 
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +8,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
@@ -14,6 +16,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.example.techstore.LocalNetwork;
@@ -33,12 +36,14 @@ public class ItemCartAdapter extends RecyclerView.Adapter<ItemCartAdapter.ItemVi
     private List<CartItem> cartItems;
     private AddMoreClickListener addMoreClicklistener;
     private SubtractClickListener subtractClickListener;
+    private RemoveClickListener removeClickListener;
 
 
-    public ItemCartAdapter(List<CartItem> cartItems, AddMoreClickListener addMoreClicklistener, SubtractClickListener subtractClickListener) {
+    public ItemCartAdapter(List<CartItem> cartItems, AddMoreClickListener addMoreClicklistener, SubtractClickListener subtractClickListener, RemoveClickListener removeClickListener) {
         this.cartItems = cartItems;
         this.addMoreClicklistener = addMoreClicklistener;
         this.subtractClickListener = subtractClickListener;
+        this.removeClickListener = removeClickListener;
         notifyDataSetChanged();
     }
     public void setItemCart(List<CartItem> cartItems) {
@@ -61,6 +66,42 @@ public class ItemCartAdapter extends RecyclerView.Adapter<ItemCartAdapter.ItemVi
 
         holder.quantity.setText(cartItems.get(position).getQuantity()+"");
         RequestQueue q = Volley.newRequestQueue(holder.itemView.getContext());
+        holder.image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                removeClickListener.onRemoveClick(cit);
+                new AlertDialog.Builder(holder.itemView.getContext())
+                        .setTitle("Delete Product From Cart?")
+                        .setMessage("Are you sure want to delete "+cit.getProduct().getProductName()+ " from cart?")
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                                StringRequest request = new StringRequest(Request.Method.DELETE, url3+"/"+StaticConfig.UID+"/"+cit.getProduct().getProductId(),
+                                        new Response.Listener<String>() {
+                                            @Override
+                                            public void onResponse(String response) {
+                                                // Xử lý phản hồi từ server
+                                            }
+                                        },
+                                        new Response.ErrorListener() {
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
+                                                // Xử lý lỗi
+                                            }
+                                        }
+                                );
+                                q.add(request);
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+//                                        dialogInterface.dismiss();
+                            }
+                        }).show();
+            }
+        });
 
 
         holder.addMore.setOnClickListener(new View.OnClickListener() {
@@ -81,9 +122,7 @@ public class ItemCartAdapter extends RecyclerView.Adapter<ItemCartAdapter.ItemVi
                     }
                 });
                 q.add(jor1);
-//                int m = cartItems.get(position).getQuantity();
-//                m++;
-//                holder.quantity.setText(m+"");
+
             }
         });
         holder.subtract.setOnClickListener(new View.OnClickListener() {
@@ -137,5 +176,8 @@ public class ItemCartAdapter extends RecyclerView.Adapter<ItemCartAdapter.ItemVi
     }
     public interface SubtractClickListener{
         void onSubtractClick(CartItem product);
+    }
+    public interface RemoveClickListener{
+        void onRemoveClick(CartItem product);
     }
 }

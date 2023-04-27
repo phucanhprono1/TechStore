@@ -23,6 +23,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
+import com.example.techstore.config.StaticConfig;
 import com.example.techstore.models.CurrentCustomerDTO;
 import com.example.techstore.models.Product;
 import com.google.firebase.database.DataSnapshot;
@@ -107,7 +108,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 String quant = numb.getText().toString();
-                JsonObjectRequest jor1 = new JsonObjectRequest(Request.Method.POST, cartapi+"/"+userId+"/"+id+"/"+quant, null, new Response.Listener<JSONObject>() {
+                JsonObjectRequest jor1 = new JsonObjectRequest(Request.Method.POST, cartapi+"/"+ StaticConfig.UID +"/"+id+"/"+quant, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         Intent i = new Intent(ProductDetailActivity.this,CartActivity.class);

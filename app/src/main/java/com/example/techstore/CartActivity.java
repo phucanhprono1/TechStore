@@ -69,7 +69,7 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class CartActivity extends AppCompatActivity implements ItemCartAdapter.AddMoreClickListener, ItemCartAdapter.SubtractClickListener {
+public class CartActivity extends AppCompatActivity implements ItemCartAdapter.AddMoreClickListener, ItemCartAdapter.SubtractClickListener, ItemCartAdapter.RemoveClickListener {
     String getCartByCustomerId = new LocalNetwork().getUrl() + "/customer/cart/view/";
     String createOrder = new LocalNetwork().getUrl() + "/orders/add";
 
@@ -246,7 +246,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
             }
         });
         q.add(jor);
-        itemCartAdapter = new ItemCartAdapter(itc, this, this);
+        itemCartAdapter = new ItemCartAdapter(itc, this, this,this);
         rcv.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
         rcv.setAdapter(itemCartAdapter);
         order.setOnClickListener(new View.OnClickListener() {
@@ -416,4 +416,8 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
     }
 
 
+    @Override
+    public void onRemoveClick(CartItem product) {
+
+    }
 }

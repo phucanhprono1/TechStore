@@ -111,17 +111,17 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         StaticConfig.CURRENT_KEY = key;
 
         uid=b.getInt("id");
-        StaticConfig.UID= String.valueOf(uid);
+//        StaticConfig.UID= String.valueOf(uid);
 
-        JsonObjectRequest rqs = new JsonObjectRequest(Request.Method.GET, currentuser+"?key="+key,null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest rqs = new JsonObjectRequest(Request.Method.GET, currentuser+"?key="+StaticConfig.CURRENT_KEY,null, new Response.Listener<JSONObject>() {
 
             @Override
             public void onResponse(JSONObject response) {
                 try {
 
                     name.setText(response.getString("name"));
-                    userReference.child(key).setValue(response.getInt("id"));
-//                    phone.setText(response.getString("phone"));
+                    userReference.child(StaticConfig.CURRENT_KEY).setValue(response.getInt("id"));
+                    phone.setText(response.getString("phone_number"));
 //                    passdata(response.getInt("id"));
 
                 } catch (JSONException e) {
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
                                     // Thêm các tham số cho POST request
                                     HashMap<String, String> params = new HashMap<>();
                                     params.put("role", "customer");
-                                    params.put("key", key);
+                                    params.put("key", StaticConfig.CURRENT_KEY);
 
                                     return params;
                                 }
@@ -186,7 +186,12 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
                         }
                         startActivity(intent2);
                         break;
-
+                    case R.id.search_bar:
+                        Intent intent3=new Intent(MainActivity.this,SearchActivity.class);
+                        intent3.putExtra("key",key);
+                        intent3.putExtra("id",uid);
+                        startActivity(intent3);
+                        break;
                 }
 
                 return true;

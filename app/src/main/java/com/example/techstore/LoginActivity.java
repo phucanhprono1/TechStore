@@ -17,6 +17,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.techstore.config.StaticConfig;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,6 +63,8 @@ public class LoginActivity extends AppCompatActivity {
                                 if(response.getString("response").equalsIgnoreCase("Login Successfully!")){
                                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
                                     i.putExtra("username",response.getString("username"));
+                                    StaticConfig.UID = response.getString("id");
+//                                    StaticConfig.CURRENT_KEY = response.getString("key");
                                     i.putExtra("key",response.getString("key"));
                                     i.putExtra("id",response.getString("id"));
                                     startActivity(i);

@@ -20,6 +20,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.techstore.config.StaticConfig;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -137,6 +138,8 @@ public class LoginOptionActivity extends AppCompatActivity {
                         if(response.getString("response").equalsIgnoreCase("Login Successfully!")){
                             Intent i = new Intent(LoginOptionActivity.this, MainActivity.class);
                             i.putExtra("username",response.getString("username"));
+                            StaticConfig.UID = response.getString("id");
+//                            StaticConfig.CURRENT_KEY = response.getString("key");
                             i.putExtra("key",response.getString("key"));
                             i.putExtra("id",response.getInt("id"));
                             startActivity(i);

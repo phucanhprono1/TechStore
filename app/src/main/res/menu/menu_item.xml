@@ -9,4 +9,8 @@
         android:id="@+id/log_out"
         android:icon="@drawable/ic_action_log_out"
         android:title="Log out" />
+    <item
+        android:id="@+id/search_bar"
+        android:icon="@drawable/ic_search"
+        android:title="Search" />
 </menu>
