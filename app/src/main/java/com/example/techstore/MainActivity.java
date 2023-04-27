@@ -15,6 +15,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -192,6 +193,8 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
                         intent3.putExtra("id",uid);
                         startActivity(intent3);
                         break;
+                    case R.id.order_history:
+                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new OrderViewFragment()).commit();
                 }
 
                 return true;
