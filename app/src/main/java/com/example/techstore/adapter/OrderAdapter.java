@@ -38,7 +38,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         holder.orderIdTextView.setText(String.valueOf(order.getOrderId()));
         holder.dateTextView.setText("Ngày Đặt: "+order.getDate());
         holder.orderStatusTextView.setText("Trạng thái đơn hàng: "+order.getOrderStatus());
-        holder.totalPriceTextView.setText("Tổng tiền: "+String.valueOf(order.getTotal_price()));
+        holder.totalPriceTextView.setText("Tổng tiền: "+order.getTotal_price()+"$");
         holder.paymentMethodTextView.setText("Hình thức thanh toán: "+order.getPaymentMethod());
         // Hiển thị danh sách các sản phẩm trong đơn hàng
         holder.orderItemsRecyclerView.setAdapter(new OrderItemsAdapter(order.getOrderItems()));

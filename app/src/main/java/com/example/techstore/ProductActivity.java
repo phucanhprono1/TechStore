@@ -15,16 +15,20 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.techstore.adapter.ProductAdapter;
+import com.example.techstore.config.StaticConfig;
 import com.example.techstore.models.Category;
 import com.example.techstore.models.Product;
+import com.facebook.login.LoginManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ProductActivity extends AppCompatActivity implements ProductAdapter.ProductClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -36,6 +40,7 @@ public class ProductActivity extends AppCompatActivity implements ProductAdapter
     SwipeRefreshLayout swipeRefreshLayout;
     List<Product> productList = new ArrayList<>();
     Category c;
+    RequestQueue q;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +59,7 @@ public class ProductActivity extends AppCompatActivity implements ProductAdapter
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout1);
         swipeRefreshLayout.setOnRefreshListener(this);
-        RequestQueue q = Volley.newRequestQueue(getApplicationContext());
+        q = Volley.newRequestQueue(getApplicationContext());
 
 
 //        List<Product> productList = new ArrayList<>();
@@ -140,5 +145,43 @@ public class ProductActivity extends AppCompatActivity implements ProductAdapter
         });
         q.add(stringRequest);
     }
-
+//    String logoutapi = new LocalNetwork().getUrl()+"/auth/logout";
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        try {
+//            JSONObject jsonbody = new JSONObject();
+//            jsonbody.put("role","customer");
+//            jsonbody.put("key",StaticConfig.CURRENT_KEY);
+//            String requestBody = jsonbody.toString();
+//            StringRequest sr = new StringRequest(Request.Method.POST, logoutapi, new Response.Listener<String>() {
+//                @Override
+//                public void onResponse(String response) {
+//
+////                    userReference.child(key).removeValue();
+//                    LoginManager.getInstance().logOut();
+//
+//                }
+//            }, new Response.ErrorListener() {
+//                @Override
+//                public void onErrorResponse(VolleyError error) {
+//
+//                }
+//            }){
+//                @Override
+//                public HashMap<String, String> getParams() {
+//                    // Thêm các tham số cho POST request
+//                    HashMap<String, String> params = new HashMap<>();
+//                    params.put("role", "customer");
+//                    params.put("key", StaticConfig.CURRENT_KEY);
+//
+//                    return params;
+//                }
+//            };
+//            q.add(sr);
+//        } catch (JSONException e) {
+//            throw new RuntimeException(e);
+//        }
+//        q.cancelAll(this);
+//    }
 }

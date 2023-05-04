@@ -20,13 +20,16 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.techstore.adapter.ProductAdapter;
+import com.example.techstore.config.StaticConfig;
 import com.example.techstore.models.Product;
+import com.facebook.login.LoginManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class SearchActivity extends AppCompatActivity implements ProductAdapter.ProductClickListener {
@@ -37,6 +40,7 @@ public class SearchActivity extends AppCompatActivity implements ProductAdapter.
     String searchUrl = new LocalNetwork().getUrl()+"/products/search";
     ProductAdapter productAdapter;
     List<Product> searchResult = new ArrayList<>();
+    RequestQueue q;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +54,7 @@ public class SearchActivity extends AppCompatActivity implements ProductAdapter.
 
 
 
-        RequestQueue q = Volley.newRequestQueue(getApplicationContext());
+        q = Volley.newRequestQueue(getApplicationContext());
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,4 +104,43 @@ public class SearchActivity extends AppCompatActivity implements ProductAdapter.
 //        i1.putExtra("id",uid);
         startActivity(i1);
     }
+//    String logoutapi = new LocalNetwork().getUrl()+"/auth/logout";
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        try {
+//            JSONObject jsonbody = new JSONObject();
+//            jsonbody.put("role","customer");
+//            jsonbody.put("key", StaticConfig.CURRENT_KEY);
+//            String requestBody = jsonbody.toString();
+//            StringRequest sr = new StringRequest(Request.Method.POST, logoutapi, new Response.Listener<String>() {
+//                @Override
+//                public void onResponse(String response) {
+//
+////                    userReference.child(key).removeValue();
+//                    LoginManager.getInstance().logOut();
+//
+//                }
+//            }, new Response.ErrorListener() {
+//                @Override
+//                public void onErrorResponse(VolleyError error) {
+//
+//                }
+//            }){
+//                @Override
+//                public HashMap<String, String> getParams() {
+//                    // Thêm các tham số cho POST request
+//                    HashMap<String, String> params = new HashMap<>();
+//                    params.put("role", "customer");
+//                    params.put("key", StaticConfig.CURRENT_KEY);
+//
+//                    return params;
+//                }
+//            };
+//            q.add(sr);
+//        } catch (JSONException e) {
+//            throw new RuntimeException(e);
+//        }
+//        q.cancelAll(this);
+//    }
 }

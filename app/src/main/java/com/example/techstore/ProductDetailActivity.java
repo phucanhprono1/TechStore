@@ -21,11 +21,13 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.example.techstore.config.StaticConfig;
 import com.example.techstore.models.CurrentCustomerDTO;
 import com.example.techstore.models.Product;
+import com.facebook.login.LoginManager;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -46,6 +48,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     String currentuser = new LocalNetwork().getUrl()+"/auth/currentUser";
     CurrentCustomerDTO currentCustomerDTO;
     String key;
+    RequestQueue q;
 
     List<Integer> i2 = new ArrayList<>();
     int uid;
@@ -70,7 +73,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         TextView price = (TextView) findViewById(R.id.prod_price);
         TextView des = findViewById(R.id.description);
 
-        RequestQueue q = Volley.newRequestQueue(getApplicationContext());
+        q = Volley.newRequestQueue(getApplicationContext());
 
 
         String userId = String.valueOf(uid);
@@ -149,4 +152,43 @@ public class ProductDetailActivity extends AppCompatActivity {
 
 
     }
+//    String logoutapi = new LocalNetwork().getUrl()+"/auth/logout";
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        try {
+//            JSONObject jsonbody = new JSONObject();
+//            jsonbody.put("role","customer");
+//            jsonbody.put("key",StaticConfig.CURRENT_KEY);
+//            String requestBody = jsonbody.toString();
+//            StringRequest sr = new StringRequest(Request.Method.POST, logoutapi, new Response.Listener<String>() {
+//                @Override
+//                public void onResponse(String response) {
+//
+////                    userReference.child(key).removeValue();
+//                    LoginManager.getInstance().logOut();
+//
+//                }
+//            }, new Response.ErrorListener() {
+//                @Override
+//                public void onErrorResponse(VolleyError error) {
+//
+//                }
+//            }){
+//                @Override
+//                public HashMap<String, String> getParams() {
+//                    // Thêm các tham số cho POST request
+//                    HashMap<String, String> params = new HashMap<>();
+//                    params.put("role", "customer");
+//                    params.put("key", StaticConfig.CURRENT_KEY);
+//
+//                    return params;
+//                }
+//            };
+//            q.add(sr);
+//        } catch (JSONException e) {
+//            throw new RuntimeException(e);
+//        }
+//        q.cancelAll(this);
+//    }
 }

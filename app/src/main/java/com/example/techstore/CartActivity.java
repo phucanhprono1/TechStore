@@ -36,12 +36,14 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.techstore.adapter.ItemCartAdapter;
 import com.example.techstore.config.StaticConfig;
 import com.example.techstore.models.Cart;
 import com.example.techstore.models.CartItem;
 import com.example.techstore.models.Product;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -61,6 +63,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
@@ -92,6 +95,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
     Spinner spinner;
     private ArrayAdapter<String> paymentAdapter;
     TextView location;
+    RequestQueue q;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -198,7 +202,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
 
         userId = String.valueOf(uid);
 
-        RequestQueue q = Volley.newRequestQueue(this);
+        q = Volley.newRequestQueue(getApplicationContext());
         removeall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -427,4 +431,43 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
     public void onRemoveClick(CartItem product) {
 
     }
+//    String logoutapi = new LocalNetwork().getUrl()+"/auth/logout";
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        try {
+//            JSONObject jsonbody = new JSONObject();
+//            jsonbody.put("role","customer");
+//            jsonbody.put("key",StaticConfig.CURRENT_KEY);
+//            String requestBody = jsonbody.toString();
+//            StringRequest sr = new StringRequest(Request.Method.POST, logoutapi, new Response.Listener<String>() {
+//                @Override
+//                public void onResponse(String response) {
+//
+////                    userReference.child(key).removeValue();
+//                    LoginManager.getInstance().logOut();
+//
+//                }
+//            }, new Response.ErrorListener() {
+//                @Override
+//                public void onErrorResponse(VolleyError error) {
+//
+//                }
+//            }){
+//                @Override
+//                public HashMap<String, String> getParams() {
+//                    // Thêm các tham số cho POST request
+//                    HashMap<String, String> params = new HashMap<>();
+//                    params.put("role", "customer");
+//                    params.put("key", StaticConfig.CURRENT_KEY);
+//
+//                    return params;
+//                }
+//            };
+//            q.add(sr);
+//        } catch (JSONException e) {
+//            throw new RuntimeException(e);
+//        }
+//        q.cancelAll(this);
+//    }
 }
