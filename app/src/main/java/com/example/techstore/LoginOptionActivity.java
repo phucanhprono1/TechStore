@@ -119,7 +119,7 @@ public class LoginOptionActivity extends AppCompatActivity {
 //        Intent intent = new Intent( LoginOptionActivity.this, MainActivity.class);
 
         RequestQueue q = Volley.newRequestQueue(getApplicationContext());
-        String password=user.getUid();
+//        String password=user.getUid();
         try {
 
             JSONObject jsonbody = new JSONObject();
@@ -127,7 +127,7 @@ public class LoginOptionActivity extends AppCompatActivity {
             jsonbody.put("email",user.getEmail());
             jsonbody.put("phone_number",user.getPhoneNumber()+"0123456789");
             jsonbody.put("username", user.getUid());
-            jsonbody.put("password", password);
+            jsonbody.put("password", user.getUid());
             jsonbody.put("role","customer");
             final String jsb=jsonbody.toString();
             JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, logapi,jsonbody, new Response.Listener<JSONObject>() {

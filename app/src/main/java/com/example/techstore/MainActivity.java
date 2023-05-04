@@ -195,10 +195,16 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
                         startActivity(intent3);
                         break;
                     case R.id.order_history:
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, new OrderViewFragment())
-                                .commit();;
-//                        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+                        OrderViewFragment fragment = (OrderViewFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                        if (fragment != null) {
+                            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+                        }
+                        else{
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.fragment_container, new OrderViewFragment())
+                                    .commit();
+                        }
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                 }

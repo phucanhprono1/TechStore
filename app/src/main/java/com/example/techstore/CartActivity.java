@@ -80,7 +80,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
     SwipeRefreshLayout swipeRefreshLayout;
     EditText addressEdt;
     EditText cityEdt;
-    Button order;
+    Button order,removeall;
 
     List<CartItem> itc = new ArrayList<>();
     TextView itemTotal, totalFee;
@@ -166,6 +166,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
 //                // Xử lý lỗi
 //            }
 //        });
+        removeall = findViewById(R.id.btnRemoveAll);
 
         map.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -198,6 +199,12 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
         userId = String.valueOf(uid);
 
         RequestQueue q = Volley.newRequestQueue(this);
+        removeall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
 //List<CartItem> itc = new ArrayList<>();
         JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET, getCartByCustomerId + StaticConfig.UID, null, new Response.Listener<JSONObject>() {
             @Override

@@ -128,7 +128,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/cartItemsRecyclerView"
                     android:layout_width="wrap_content"
-                    android:layout_height="400dp"
+                    android:layout_height="300dp"
                     android:layout_marginTop="8dp"
 
                     app:layout_constraintEnd_toEndOf="parent"
@@ -141,6 +141,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/cartItemsRecyclerView"
                     android:layout_margin="10dp"
+
                     android:text="Tổng số sản phẩm"
                     android:textSize="18sp"
                     android:textStyle="bold"/>
@@ -230,7 +231,14 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tvPaymentMethod" />
 
-
+                <Button
+                    android:id="@+id/btnRemoveAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Remove All"
+                    app:layout_constraintEnd_toStartOf="@+id/tvitemtotalAmount"
+                    app:layout_constraintStart_toEndOf="@+id/tvSubtotal"
+                    app:layout_constraintTop_toBottomOf="@+id/cartItemsRecyclerView" />
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
