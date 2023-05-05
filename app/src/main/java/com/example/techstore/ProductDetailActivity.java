@@ -7,11 +7,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -30,11 +28,11 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.example.techstore.adapter.CommentAdapter;
-import com.example.techstore.adapter.ProductAdapter;
 import com.example.techstore.config.StaticConfig;
 import com.example.techstore.models.Comment;
 import com.example.techstore.models.CurrentCustomerDTO;
 import com.example.techstore.models.Product;
+import com.facebook.login.LoginManager;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -75,7 +73,12 @@ public class ProductDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_detail);
         EditText comment1 = (EditText) findViewById(R.id.comments);
-
+        Product p = getIntent().getParcelableExtra("prod");
+        Bundle b = new Bundle();
+        String key1 = (String) getIntent().getExtras().get("key1");
+        uid = getIntent().getExtras().getInt("id");
+        key = key1;
+        String id = String.valueOf(p.getProductId());
         findViewById(R.id.send_comment).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -89,8 +92,8 @@ public class ProductDetailActivity extends AppCompatActivity {
                     jsonbody.put("comment", comment2);
                     jsonbody.put("rate", rate);
                     jsonbody.put("resp_comment", resp_comment);
-                    jsonbody.put("product", 10);
-                    jsonbody.put("customer", 2);
+                    jsonbody.put("product", id);
+                    jsonbody.put("customer", StaticConfig.UID);
                     final String jsb = jsonbody.toString();
                     StringRequest sr = new StringRequest(Request.Method.POST, sendComment, new Response.Listener<String>() {
                         @Override
@@ -130,16 +133,12 @@ public class ProductDetailActivity extends AppCompatActivity {
         });
 
 
-        Product p = getIntent().getParcelableExtra("prod");
-        Bundle b = new Bundle();
-        String key1 = (String) getIntent().getExtras().get("key1");
-        uid = getIntent().getExtras().getInt("id");
-        key = key1;
+
 //        Toast.makeText(getApplicationContext(),"key:"+key+"key1"+key1,Toast.LENGTH_SHORT).show();
 //        currentCustomerDTO = getIntent().getParcelableExtra("id");
 //        String uid = String.valueOf(currentCustomerDTO.getId());
 //        int uid = Integer.parseInt(userId);
-        String id = String.valueOf(p.getProductId());
+
         ImageView thumbnail = (ImageView) findViewById(R.id.product_pic);
         TextView name = (TextView) findViewById(R.id.name_prod);
         TextView manufacturer = findViewById(R.id.manufactur);

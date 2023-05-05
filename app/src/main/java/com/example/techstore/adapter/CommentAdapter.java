@@ -6,10 +6,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.techstore.R;
 import com.example.techstore.models.Comment;
 
@@ -54,6 +56,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     public void onBindViewHolder(CommentViewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.name.setText(comm.get(holder.getAdapterPosition()).getComment(("productId")));
         holder.response.setText(comm.get(holder.getAdapterPosition()).getResp_comment(("productId")));
+
       //  holder.name.setText("1111111");
         //Log.d("productId::",comm.get(holder.getAdapterPosition()).getComment(("productId")));
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -77,12 +80,14 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     public class CommentViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView name;
         TextView response;
+        ImageView image;
 
 
 
         CommentViewHolder(View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.comment);
+            image = itemView.findViewById(R.id.thumbImage);
             response = itemView.findViewById(R.id.resp_comment);
             itemView.setOnClickListener(this);
         }
