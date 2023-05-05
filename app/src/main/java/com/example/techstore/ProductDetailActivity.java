@@ -83,7 +83,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String comment2 = comment1.getText().toString();
-                String resp_comment = comment1.getText().toString();
+                String resp_comment = "Cam on da gop y";
                 Integer rate = 1;
                 RequestQueue q = Volley.newRequestQueue(getApplicationContext());
 
