@@ -75,7 +75,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class CartActivity extends AppCompatActivity implements ItemCartAdapter.AddMoreClickListener, ItemCartAdapter.SubtractClickListener, ItemCartAdapter.RemoveClickListener {
     String getCartByCustomerId = new LocalNetwork().getUrl() + "/customer/cart/view/";
     String createOrder = new LocalNetwork().getUrl() + "/orders/add";
-    String removealll = new LocalNetwork().getUrl()+"/customer/cart/removeall/";
+    String removealll = new LocalNetwork().getUrl()+"/customer/cart/remove/";
 
     String key;
     private String userId;
