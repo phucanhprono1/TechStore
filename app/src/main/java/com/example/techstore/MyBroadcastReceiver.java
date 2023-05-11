@@ -19,46 +19,9 @@ import java.util.HashMap;
 public class MyBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals(Intent.ACTION_SHUTDOWN)) {
-            final PendingResult pendingResult = goAsync();
-            Thread thread = new Thread() {
-                public void run() {
-                    // Khởi tạo request
-                    String key = null;
-                    String url = new LocalNetwork().getUrl()+"/auth/logout";
-                    RequestQueue q = Volley.newRequestQueue(context);
-                    try {
-                        JSONObject jsonbody = new JSONObject();
-                        jsonbody.put("role","customer");
-                        jsonbody.put("key",key);
-                        String requestBody = jsonbody.toString();
-                        StringRequest sr = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                pendingResult.finish();
-                            }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-
-                            }
-                        }){
-                            @Override
-                            public HashMap<String, String> getParams() {
-                                // Thêm các tham số cho POST request
-                                HashMap<String, String> params = new HashMap<>();
-                                params.put("role", "customer");
-                                params.put("key", key);
-                                return params;
-                            }
-                        };
-                        q.add(sr);
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            };
-            thread.start();
+        if (Intent.ACTION_SHUTDOWN.equals(intent.getAction())) {
+            Intent serviceIntent = new Intent(context, MyService.class);
+            context.startService(serviceIntent);
         }
     }
 }

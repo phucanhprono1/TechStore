@@ -104,43 +104,5 @@ public class SearchActivity extends AppCompatActivity implements ProductAdapter.
 //        i1.putExtra("id",uid);
         startActivity(i1);
     }
-//    String logoutapi = new LocalNetwork().getUrl()+"/auth/logout";
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        try {
-//            JSONObject jsonbody = new JSONObject();
-//            jsonbody.put("role","customer");
-//            jsonbody.put("key", StaticConfig.CURRENT_KEY);
-//            String requestBody = jsonbody.toString();
-//            StringRequest sr = new StringRequest(Request.Method.POST, logoutapi, new Response.Listener<String>() {
-//                @Override
-//                public void onResponse(String response) {
-//
-////                    userReference.child(key).removeValue();
-//                    LoginManager.getInstance().logOut();
-//
-//                }
-//            }, new Response.ErrorListener() {
-//                @Override
-//                public void onErrorResponse(VolleyError error) {
-//
-//                }
-//            }){
-//                @Override
-//                public HashMap<String, String> getParams() {
-//                    // Thêm các tham số cho POST request
-//                    HashMap<String, String> params = new HashMap<>();
-//                    params.put("role", "customer");
-//                    params.put("key", StaticConfig.CURRENT_KEY);
-//
-//                    return params;
-//                }
-//            };
-//            q.add(sr);
-//        } catch (JSONException e) {
-//            throw new RuntimeException(e);
-//        }
-//        q.cancelAll(this);
-//    }
+
 }

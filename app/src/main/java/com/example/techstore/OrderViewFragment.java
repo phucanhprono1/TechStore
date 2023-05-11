@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -59,6 +60,8 @@ public class OrderViewFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_order_view, container, false);
         recyclerView = view.findViewById(R.id.order_history_recycler_view);
         orderAdapter = new OrderAdapter();
+//        SwipeRefreshLayout swipeRefreshLayout = getActivity().findViewById(R.id.swipeRefreshLayout2);
+//        swipeRefreshLayout.setEnabled(false);
         getOrderList();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(orderAdapter);

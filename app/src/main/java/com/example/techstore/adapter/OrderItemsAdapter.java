@@ -19,7 +19,9 @@ public class OrderItemsAdapter extends RecyclerView.Adapter<OrderItemsAdapter.Or
     private List<OrderItem> orderItems;
 
     public OrderItemsAdapter(List<OrderItem> orderItems) {
+
         this.orderItems = orderItems;
+        notifyDataSetChanged();
     }
 
 

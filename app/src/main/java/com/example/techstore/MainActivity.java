@@ -5,8 +5,10 @@ import android.os.Bundle;
 
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -61,7 +63,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity implements CategoryAdapter.CategoryClickListener, SwipeRefreshLayout.OnRefreshListener {
-    String logoutapi = new LocalNetwork().getUrl()+"/auth/logout";
+    String logoutapi = new LocalNetwork().getUrl()+"/auth/logout/";
     String currentuser = new LocalNetwork().getUrl()+"/auth/currentUser";
     String getAllCategory = new LocalNetwork().getUrl()+"/category/getAll";
     private CategoryAdapter categoryAdapter;
@@ -98,15 +100,25 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         TextView name = header.findViewById(R.id.name11);
         q = Volley.newRequestQueue(getApplicationContext());
         Bundle b = getIntent().getExtras();
-//        logoutApi = new Retrofit.Builder()
-//                .baseUrl("logoutapi")
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build()
-//                .create(ApiService.class);
 
-
-
-
+        FrameLayout frameLayout = findViewById(R.id.fragment_container);
+        frameLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                // Vô hiệu hóa tính năng SwipeRefreshLayout khi người dùng vuốt
+                swipeRefreshLayout.setEnabled(false);
+                return false;
+            }
+        });
+        TextView ct = findViewById(R.id.category_title_textview);
+        ct.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                swipeRefreshLayout.setEnabled(true);
+                return false;
+            }
+        });
+        swipeRefreshLayout.setEnabled(true);
         TextView phone  = header.findViewById(R.id.phonenumberLabel);
 
         key = b.getString("key");
@@ -139,7 +151,9 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         }){
         };
         q.add(rqs);
-//        phone.setText(key);
+
+        SearchFragment searchFragment=(SearchFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new SearchFragment()).commit();
         nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -189,22 +203,20 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
                         startActivity(intent2);
                         break;
                     case R.id.search_bar:
-                        Intent intent3=new Intent(MainActivity.this,SearchActivity.class);
-                        intent3.putExtra("key",key);
-                        intent3.putExtra("id",uid);
-                        startActivity(intent3);
+
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, new SearchFragment())
+                                .commit();
+
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                     case R.id.order_history:
 
-                        OrderViewFragment fragment = (OrderViewFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                        if (fragment != null) {
-                            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-                        }
-                        else{
-                            getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.fragment_container, new OrderViewFragment())
-                                    .commit();
-                        }
+
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, new OrderViewFragment())
+                            .commit();
+
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                 }
@@ -245,9 +257,11 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         q.add(requestCate);
         categoryAdapter = new CategoryAdapter(category,this);
         RecyclerView rcv = findViewById(R.id.categories);
-        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this,RecyclerView.VERTICAL,false);
+        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this,RecyclerView.HORIZONTAL,false);
         rcv.setLayoutManager(linearLayoutManager);
         rcv.setAdapter(categoryAdapter);
+//        Intent serviceIntent = new Intent(this, MyService.class);
+//        startService(serviceIntent);
     }
 
 
@@ -320,43 +334,12 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         };
         q.add(requestCate);
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            JSONObject jsonbody = new JSONObject();
-            jsonbody.put("role","customer");
-            jsonbody.put("key",key);
-            String requestBody = jsonbody.toString();
-            StringRequest sr = new StringRequest(Request.Method.POST, logoutapi, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-
-                    userReference.child(key).removeValue();
-                    LoginManager.getInstance().logOut();
-
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-
-                }
-            }){
-                @Override
-                public HashMap<String, String> getParams() {
-                    // Thêm các tham số cho POST request
-                    HashMap<String, String> params = new HashMap<>();
-                    params.put("role", "customer");
-                    params.put("key", key);
-
-                    return params;
-                }
-            };
-            q.add(sr);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        q.cancelAll(this);
+        // make API call
+        Intent intent = new Intent(this, MyService.class);
+        startService(intent);
     }
+
 }

@@ -75,6 +75,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class CartActivity extends AppCompatActivity implements ItemCartAdapter.AddMoreClickListener, ItemCartAdapter.SubtractClickListener, ItemCartAdapter.RemoveClickListener {
     String getCartByCustomerId = new LocalNetwork().getUrl() + "/customer/cart/view/";
     String createOrder = new LocalNetwork().getUrl() + "/orders/add";
+    String removealll = new LocalNetwork().getUrl()+"/customer/cart/removeall/";
 
     String key;
     private String userId;
@@ -206,7 +207,19 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
         removeall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                StringRequest stringRequest = new StringRequest(Request.Method.DELETE, removealll + StaticConfig.UID, new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Toast.makeText(CartActivity.this, "Xóa thành công", Toast.LENGTH_SHORT).show();
+                        refreshCartItems();
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(CartActivity.this, "Xóa thất bại", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                q.add(stringRequest);
             }
         });
 //List<CartItem> itc = new ArrayList<>();
