@@ -1,10 +1,11 @@
 package com.example.techstore;
 
-import static android.content.ContentValues.TAG;
+
 
 import android.Manifest;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -55,12 +56,17 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.gson.Gson;
+import com.paypal.android.sdk.payments.PayPalConfiguration;
+import com.paypal.android.sdk.payments.PayPalPayment;
+import com.paypal.android.sdk.payments.PayPalService;
+import com.paypal.android.sdk.payments.PaymentActivity;
 //import com.example.techstore.retrofit.CartAPI;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -92,11 +98,17 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
     MapsFragment mapFragment;
     private PlacesClient placesClient;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    private boolean mLocationPermissionGranted;
+
     Spinner spinner;
     private ArrayAdapter<String> paymentAdapter;
     TextView location;
     RequestQueue q;
+    private static final String PAYPAL_CLIENT_ID = "AfyKIor1VmZpwm1yrW7IqO15fVwUMzF6wShGo-Huzp2bYWEHQMirPtIQSVQ_jti7yboy-krQXSl1T1dq";
+    private static final int REQUEST_CODE_PAYPAL_PAYMENT = 1;
+
+    private PayPalConfiguration paypalConfiguration = new PayPalConfiguration()
+            .environment(PayPalConfiguration.ENVIRONMENT_SANDBOX)
+            .clientId(PAYPAL_CLIENT_ID);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,12 +117,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
         key = b.getString("key");
         uid = b.getInt("id");
         String key1 = key;
-//        mLocationPermissionGranted = checkPermission();
-//
-//        // Yêu cầu quyền truy cập vị trí
-//        if (!mLocationPermissionGranted) {
-//            requestPermission();
-//        }
+
         location = findViewById(R.id.tvLocation);
         location.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,31 +153,14 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
         map = findViewById(R.id.mapFrag);
 
         spinner=findViewById(R.id.paymentMethodSpinner);
-        paymentAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new String[]{"COD", "Zalo Pay", "ATM"});
+        paymentAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new String[]{"COD", "Zalo Pay", "Paypal"});
         paymentAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(paymentAdapter);
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
 
-//        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-//                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
-//
-//        // Đặt danh sách các trường thông tin của địa điểm cần trả về
-//        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
-//
-//        // Đăng ký lắng nghe sự kiện khi chọn địa điểm từ AutocompleteSupportFragment
-//        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-//            @Override
-//            public void onPlaceSelected(Place place) {
-//                // Xử lý địa điểm đã chọn
-//            }
-//
-//            @Override
-//            public void onError(Status status) {
-//                // Xử lý lỗi
-//            }
-//        });
+
         removeall = findViewById(R.id.btnRemoveAll);
 
         map.setOnClickListener(new View.OnClickListener() {
@@ -273,6 +263,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
         itemCartAdapter = new ItemCartAdapter(itc, this, this,this);
         rcv.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
         rcv.setAdapter(itemCartAdapter);
+
         order.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -282,35 +273,52 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
                 if (address.isEmpty() || city.isEmpty()) {
                     Toast.makeText(CartActivity.this, "Please enter your address and city", Toast.LENGTH_SHORT).show();
                 } else {
+                    if(paymentMethod.equals("Paypal")){
+                        Intent intent = new Intent(CartActivity.this, PayPalService.class);
+                        intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, paypalConfiguration);
+                        startService(intent);
+                        PayPalPayment payPalPayment = new PayPalPayment(
+                                new BigDecimal(totalFee.getText().toString()),
+                                "USD",
+                                "Order payment",
+                                PayPalPayment.PAYMENT_INTENT_SALE);
 
-                    JSONObject jsonObject = new JSONObject();
-                    try {
-                        JSONObject addressObj = new JSONObject();
-                        addressObj.put("address", address);
-                        addressObj.put("city", city);
-                        jsonObject.put("address", addressObj);
-                        jsonObject.put("location", StaticConfig.CURRENT_LOCATION);
-                        jsonObject.put("paymentMethod", paymentMethod);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        Intent paymentIntent = new Intent(CartActivity.this, PaymentActivity.class);
+                        paymentIntent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, paypalConfiguration);
+                        paymentIntent.putExtra(PaymentActivity.EXTRA_PAYMENT, payPalPayment);
+                        startActivityForResult(paymentIntent, REQUEST_CODE_PAYPAL_PAYMENT);
                     }
-                    JsonObjectRequest jor1 = new JsonObjectRequest(Request.Method.POST, createOrder + "/" + StaticConfig.UID, jsonObject, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            Toast.makeText(CartActivity.this, "Order successfully", Toast.LENGTH_SHORT).show();
+                    else{
+                        JSONObject jsonObject = new JSONObject();
+                        try {
+                            JSONObject addressObj = new JSONObject();
+                            addressObj.put("address", address);
+                            addressObj.put("city", city);
+                            jsonObject.put("address", addressObj);
+                            jsonObject.put("location", StaticConfig.CURRENT_LOCATION);
+                            jsonObject.put("paymentMethod", paymentMethod);
 
-                            Intent intent = new Intent(CartActivity.this, MainActivity.class);
-                            intent.putExtra("key", StaticConfig.CURRENT_KEY);
-                            startActivity(intent);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(CartActivity.this, "Order failed", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    q.add(jor1);
+                        JsonObjectRequest jor1 = new JsonObjectRequest(Request.Method.POST, createOrder + "/" + StaticConfig.UID, jsonObject, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                Toast.makeText(CartActivity.this, "Order successfully", Toast.LENGTH_SHORT).show();
+
+                                Intent intent = new Intent(CartActivity.this, MainActivity.class);
+                                intent.putExtra("key", StaticConfig.CURRENT_KEY);
+                                startActivity(intent);
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(CartActivity.this, "Order failed", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        q.add(jor1);
+                    }
+
                 }
             }
         });
@@ -410,77 +418,25 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
         q.add(jor);
     }
 
-    private void getCurrentLocation() {
-        if (mLocationPermissionGranted) {
-            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (location != null) {
-                double latitude = location.getLatitude();
-                double longitude = location.getLongitude();
-
-                // Lấy link Google Map vị trí hiện tại
-                StaticConfig.CURRENT_LOCATION = "http://maps.google.com/maps?q=" + latitude + "," + longitude;
-                Toast.makeText(this, "Location: " + StaticConfig.CURRENT_LOCATION, Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "getCurrentLocation: url = " + StaticConfig.CURRENT_LOCATION);
-            } else {
-                // Nếu không thể lấy vị trí hiện tại
-                Log.d(TAG, "getCurrentLocation: location is null");
-            }
-        }
-    }
 
 
     @Override
     public void onRemoveClick(CartItem product) {
 
     }
-//    String logoutapi = new LocalNetwork().getUrl()+"/auth/logout";
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        try {
-//            JSONObject jsonbody = new JSONObject();
-//            jsonbody.put("role","customer");
-//            jsonbody.put("key",StaticConfig.CURRENT_KEY);
-//            String requestBody = jsonbody.toString();
-//            StringRequest sr = new StringRequest(Request.Method.POST, logoutapi, new Response.Listener<String>() {
-//                @Override
-//                public void onResponse(String response) {
-//
-////                    userReference.child(key).removeValue();
-//                    LoginManager.getInstance().logOut();
-//
-//                }
-//            }, new Response.ErrorListener() {
-//                @Override
-//                public void onErrorResponse(VolleyError error) {
-//
-//                }
-//            }){
-//                @Override
-//                public HashMap<String, String> getParams() {
-//                    // Thêm các tham số cho POST request
-//                    HashMap<String, String> params = new HashMap<>();
-//                    params.put("role", "customer");
-//                    params.put("key", StaticConfig.CURRENT_KEY);
-//
-//                    return params;
-//                }
-//            };
-//            q.add(sr);
-//        } catch (JSONException e) {
-//            throw new RuntimeException(e);
-//        }
-//        q.cancelAll(this);
-//    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_PAYPAL_PAYMENT) {
+            if (resultCode == RESULT_OK) {
+                // The payment was completed successfully, do your post-payment processing here.
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // The payment was canceled, handle this as needed.
+            } else if (resultCode == PaymentActivity.RESULT_EXTRAS_INVALID) {
+                // An invalid payment or PayPalConfiguration was submitted, handle this as needed.
+            }
+        }
+    }
 }

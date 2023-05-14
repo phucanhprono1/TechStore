@@ -61,5 +61,7 @@ dependencies {
 //    implementation(name:'zpdk-release-v3.1', ext:'aar')
 //    implementation 'com.zing.zalo.zalosdk:ZaloPaySDK:2.0.0'
     implementation 'com.squareup.picasso:picasso:2.8'
+    // https://mvnrepository.com/artifact/com.paypal.sdk/paypal-android-sdk
+    implementation 'com.paypal.sdk:paypal-android-sdk:2.16.0'
 
 }
