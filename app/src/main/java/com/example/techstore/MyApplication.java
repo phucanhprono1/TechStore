@@ -6,6 +6,7 @@ import com.example.techstore.config.StaticConfig;
 import com.example.techstore.retrofit.ApiService;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
+import com.paypal.http.Environment;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -15,7 +16,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MyApplication extends Application {
     @Override
     public void onCreate() {
+
         super.onCreate();
+//        PayPalCheckout.setConfig(new CheckoutConfig(
+//                this,
+//                YOUR_CLIENT_ID,
+//                Environment.SANDBOX,
+//                BuildConfig.APPLICATION_ID + "://paypalpay",
+//                CurrencyCode.USD,
+//                UserAction.PAY_NOW
+//        ));
     }
 
     @Override

@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -151,7 +152,29 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         }){
         };
         q.add(rqs);
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                ApiService apiService = new Retrofit.Builder()
+                        .baseUrl(logoutapi)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(ApiService.class);
+                Call<String> call = apiService.logout(key,"customer");
+                call.enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, retrofit2.Response<String> response) {
+                        FirebaseAuth.getInstance().signOut();
+                        LoginManager.getInstance().logOut();
+                    }
 
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        // handle failure
+                    }
+                });
+            }
+        });
         SearchFragment searchFragment=(SearchFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new SearchFragment()).commit();
         nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {

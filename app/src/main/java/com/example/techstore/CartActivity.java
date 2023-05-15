@@ -7,6 +7,7 @@ import android.Manifest;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
@@ -56,6 +57,8 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.gson.Gson;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.TextHttpResponseHandler;
 import com.paypal.android.sdk.payments.PayPalConfiguration;
 import com.paypal.android.sdk.payments.PayPalPayment;
 import com.paypal.android.sdk.payments.PayPalService;
@@ -69,9 +72,13 @@ import org.json.JSONObject;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 
+import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.HttpEntity;
+import cz.msebera.android.httpclient.entity.StringEntity;
 import retrofit2.Call;
 import retrofit2.Callback;
 //import retrofit2.Response;
@@ -103,8 +110,9 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
     private ArrayAdapter<String> paymentAdapter;
     TextView location;
     RequestQueue q;
-    private static final String PAYPAL_CLIENT_ID = "AfyKIor1VmZpwm1yrW7IqO15fVwUMzF6wShGo-Huzp2bYWEHQMirPtIQSVQ_jti7yboy-krQXSl1T1dq";
+    private static final String PAYPAL_CLIENT_ID = "AUgQToK94OvleJVGAe5lXIsmVirv8vmpM21TVyNus7r-D3mdMk0ypCIMB8u-kriEWMc4wIDvwzMhkGuS";
     private static final int REQUEST_CODE_PAYPAL_PAYMENT = 1;
+    static String accessToken;
 
     private PayPalConfiguration paypalConfiguration = new PayPalConfiguration()
             .environment(PayPalConfiguration.ENVIRONMENT_SANDBOX)
@@ -160,7 +168,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
 
-
+        StaticConfig.TOTAL=totalFee.getText().toString();
         removeall = findViewById(R.id.btnRemoveAll);
 
         map.setOnClickListener(new View.OnClickListener() {
@@ -190,7 +198,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
             }
         });
         RecyclerView rcv = findViewById(R.id.cartItemsRecyclerView);
-
+        getAccessToken();
         userId = String.valueOf(uid);
 
         q = Volley.newRequestQueue(getApplicationContext());
@@ -263,37 +271,26 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
         itemCartAdapter = new ItemCartAdapter(itc, this, this,this);
         rcv.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
         rcv.setAdapter(itemCartAdapter);
-
+//        StaticConfig.ADDRESS = addressEdt.getText().toString();
+//        StaticConfig.CITY = cityEdt.getText().toString();
         order.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String address = addressEdt.getText().toString();
-                String city = cityEdt.getText().toString();
+                StaticConfig.ADDRESS = addressEdt.getText().toString();
+                StaticConfig.CITY = cityEdt.getText().toString();
                 String paymentMethod = spinner.getSelectedItem().toString();
-                if (address.isEmpty() || city.isEmpty()) {
+                if (StaticConfig.ADDRESS.isEmpty() || StaticConfig.CITY.isEmpty()) {
                     Toast.makeText(CartActivity.this, "Please enter your address and city", Toast.LENGTH_SHORT).show();
                 } else {
                     if(paymentMethod.equals("Paypal")){
-                        Intent intent = new Intent(CartActivity.this, PayPalService.class);
-                        intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, paypalConfiguration);
-                        startService(intent);
-                        PayPalPayment payPalPayment = new PayPalPayment(
-                                new BigDecimal(totalFee.getText().toString()),
-                                "USD",
-                                "Order payment",
-                                PayPalPayment.PAYMENT_INTENT_SALE);
-
-                        Intent paymentIntent = new Intent(CartActivity.this, PaymentActivity.class);
-                        paymentIntent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, paypalConfiguration);
-                        paymentIntent.putExtra(PaymentActivity.EXTRA_PAYMENT, payPalPayment);
-                        startActivityForResult(paymentIntent, REQUEST_CODE_PAYPAL_PAYMENT);
+                        createOrder();
                     }
                     else{
                         JSONObject jsonObject = new JSONObject();
                         try {
                             JSONObject addressObj = new JSONObject();
-                            addressObj.put("address", address);
-                            addressObj.put("city", city);
+                            addressObj.put("address", StaticConfig.ADDRESS);
+                            addressObj.put("city", StaticConfig.CITY);
                             jsonObject.put("address", addressObj);
                             jsonObject.put("location", StaticConfig.CURRENT_LOCATION);
                             jsonObject.put("paymentMethod", paymentMethod);
@@ -323,37 +320,112 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
             }
         });
     }
+    String url = "https://api-m.sandbox.paypal.com";
+
+    private void createOrder() {
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.addHeader("Accept", "application/json");
+        client.addHeader("Content-type", "application/json");
+        client.addHeader("Authorization", "Bearer " + accessToken);
+
+        String order = "{"
+                + "\"intent\": \"CAPTURE\","
+                + "\"purchase_units\": [\n" +
+                "      {\n" +
+                "        \"amount\": {\n" +
+                "          \"currency_code\": \"USD\",\n" +
+                "          \"value\": \""+totalFee.getText().toString()+"\"\n" +
+                "        }\n" +
+                "      }\n" +
+                "    ],\"application_context\": {\n" +
+                "        \"brand_name\": \"TechStore\",\n" +
+                "        \"return_url\": \"techstorepay://example.com\",\n" +
+                "        \"cancel_url\": \"techstorepay://example.com\"\n" +
+                "    }}";
+        HttpEntity entity = new StringEntity(order, "utf-8");
+
+        client.post(this, url+"/v2/checkout/orders", entity, "application/json",new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Log.e("RESPONSE", responseString);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                Log.i("RESPONSE", responseString);
+                try {
+                    JSONArray links = new JSONObject(responseString).getJSONArray("links");
+
+                    //iterate the array to get the approval link
+                    for (int i = 0; i < links.length(); ++i) {
+                        JSONObject linkObj = links.getJSONObject(i);
+                        String rel = links.getJSONObject(i).getString("rel");
+                        if (rel.equals("approve")){
+                            String link = linkObj.getString("href");
+                            //redirect to this link via CCT
+                            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                            CustomTabsIntent customTabsIntent = builder.build();
+                            customTabsIntent.launchUrl(CartActivity.this, Uri.parse(link));
+                        }
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+    }
 
 
     // Kiểm tra quyền truy cập vị trí
-    private boolean checkPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        } else {
-            return false;
+    String encodeStringToBase64(){
+        String input = "AUgQToK94OvleJVGAe5lXIsmVirv8vmpM21TVyNus7r-D3mdMk0ypCIMB8u-kriEWMc4wIDvwzMhkGuS:EGt8zwbVkGepacWetnbRad7gJL-dydvEa8t0Ah4sZ4oe8X4FbOdtDoqP2y5DPTEgNGaw3Oe27z2SeEJ6";
+        String encodedString = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            encodedString = Base64.getEncoder().encodeToString(input.getBytes());
         }
+        return encodedString;
     }
 
+    void getAccessToken(){
+        String AUTH = encodeStringToBase64();
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.addHeader("Accept", "application/json");
+        client.addHeader("Content-type", "application/x-www-form-urlencoded");
+        client.addHeader("Authorization", "Basic "+ AUTH);
+        String jsonString = "grant_type=client_credentials";
+
+        HttpEntity entity = new StringEntity(jsonString, "utf-8");
+
+        client.post(this, "https://api-m.sandbox.paypal.com/v1/oauth2/token", entity, "application/x-www-form-urlencoded",new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, String responseString, Throwable throwable) {
+
+            }
+
+            @Override
+            public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, String response) {
+                try {
+                    JSONObject jobj = new JSONObject(response);
+                    accessToken = jobj.getString("access_token");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+        });
+    }
+    public static String getMyAccessToken(){
+        return accessToken;
+    }
     private void requestPermission() {
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
     }
-
-    //
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (requestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
-//            if (grantResults.length > 0
-//                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                mLocationPermissionGranted = true;
-//                getCurrentLocation();
-//            }
-//        }
-//    }
+    
 
     @Override
     public void onAddMoreClick(CartItem product) {

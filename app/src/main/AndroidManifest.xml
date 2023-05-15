@@ -19,38 +19,59 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:theme"
         tools:targetApi="31">
+        <activity
+            android:name=".CheckoutActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
-        <activity android:name="com.paypal.android.sdk.payments.LoginActivity"
+                <data android:scheme="techstorepay" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.paypal.android.sdk.payments.LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="false"/>
-        <activity android:name="com.paypal.android.sdk.payments.PaymentMethodActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.PaymentMethodActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="false"/>
-        <activity android:name="com.paypal.android.sdk.payments.PaymentConfirmActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.PaymentConfirmActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="false"/>
-        <activity android:name="com.paypal.android.sdk.payments.PayPalFuturePaymentActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.PayPalFuturePaymentActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="false"/>
-        <activity android:name="com.paypal.android.sdk.payments.FuturePaymentConsentActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.FuturePaymentConsentActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="false"/>
-        <activity android:name="com.paypal.android.sdk.payments.FuturePaymentInfoActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.FuturePaymentInfoActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="false"/>
-        <activity android:name="com.paypal.android.sdk.payments.PayPalProfileSharingActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.PayPalProfileSharingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="false"/>
-        <activity android:name="com.paypal.android.sdk.payments.ProfileSharingConsentActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.ProfileSharingConsentActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="false"/>
+            android:exported="false" />
+
         <service
             android:name=".MyService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
         <service
             android:name="com.paypal.android.sdk.payments.PayPalService"
             android:exported="false" />
+
         <activity
             android:name="com.paypal.android.sdk.payments.PayPalService"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -60,8 +81,7 @@
             android:exported="false" />
         <activity
             android:name=".SearchActivity"
-            android:exported="false" />
-        <!-- <intent-filter> -->
+            android:exported="false" /> <!-- <intent-filter> -->
         <!-- <action android:name="android.intent.action.VIEW" /> -->
         <!-- <category android:name="android.intent.category.DEFAULT" /> -->
         <!-- <category android:name="android.intent.category.BROWSABLE" /> -->
