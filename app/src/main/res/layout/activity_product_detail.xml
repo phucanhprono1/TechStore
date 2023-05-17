@@ -20,8 +20,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Product Detail:"
-        android:textSize="30dp"
+        android:textSize="35dp"
         android:textStyle="bold"
+        android:textColor="@color/purple_700"
         app:layout_constraintBottom_toTopOf="@+id/cardProd"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -62,7 +63,8 @@
                 android:id="@+id/manufactur"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
+                android:textStyle="bold"
+                android:layout_marginStart="20dp"
                 android:layout_marginTop="7dp"
                 android:text="manufacturer" />
 
@@ -70,7 +72,8 @@
                 android:id="@+id/prod_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
+                android:textStyle="bold"
+                android:layout_marginStart="20dp"
                 android:layout_marginTop="10dp"
                 android:text="Price" />
 
@@ -78,7 +81,8 @@
                 android:id="@+id/name_prod"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
+                android:textStyle="bold"
+                android:layout_marginStart="20dp"
                 android:layout_marginTop="10dp"
                 android:text="name" />
         </LinearLayout>
@@ -92,6 +96,8 @@
         android:layout_height="54dp"
         android:layout_marginBottom="32dp"
         android:text="TextView"
+        android:textSize="12dp"
+        android:textStyle="italic"
         app:layout_constraintBottom_toTopOf="@+id/number_input1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.178"
@@ -159,8 +165,7 @@
         android:layout_marginTop="8dp"
         app:layout_constraintRight_toRightOf="parent"
 
-        tools:layout_editor_absoluteX="32dp"
-        tools:layout_editor_absoluteY="485dp" />
+         />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

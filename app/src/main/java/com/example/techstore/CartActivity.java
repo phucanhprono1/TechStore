@@ -217,7 +217,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
                 try {
                     itemTotal.setText(response.getInt("product_quantity") + "");
                     totalFee.setText(response.getDouble("total_price") + "");
-
+                    StaticConfig.TOTAL = String.valueOf(response.getDouble("total_price"));
                     JSONArray jsonArray = response.getJSONArray("cartItems");
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject item = jsonArray.getJSONObject(i);
@@ -237,7 +237,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
                         p.setProductName(prod.getString("productName"));
                         p.setPrice((float) prod.getDouble("price"));
                         p.setImage(prod.getString("image"));
-                        StaticConfig.TOTAL= String.valueOf(prod.getDouble("price"));
+
                         itemCart.setProduct(p);
                         itemCart.setQuantity(item.getInt("quantity"));
                         itc.add(itemCart);

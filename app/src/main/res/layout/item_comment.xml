@@ -20,7 +20,7 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_gravity="center_vertical"
-            android:layout_margin="10dp"
+            android:layout_margin="20dp"
             app:srcCompat="@drawable/ic_blank_user"
             />
         <LinearLayout
@@ -30,8 +30,8 @@
 
             <TextView
                 android:id="@+id/comment"
-                android:layout_width="wrap_content"
-                android:layout_height="35dp"
+                android:layout_width="115dp"
+                android:layout_height="38dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="05dp"
                 android:layout_marginEnd="10dp"
@@ -42,7 +42,7 @@
 
             <TextView
                 android:id="@+id/resp_comment"
-                android:layout_width="98dp"
+                android:layout_width="194dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"

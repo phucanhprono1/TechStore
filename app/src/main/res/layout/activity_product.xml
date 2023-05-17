@@ -7,18 +7,7 @@
     android:orientation="vertical"
     android:background="@drawable/login_bg"
     tools:context=".ProductActivity">
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:layout_marginTop="40dp"
-        app:headerLayout="@layout/header"
-        app:menu="@menu/menu_item" >
 
-
-
-    </com.google.android.material.navigation.NavigationView>
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -41,7 +30,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/products"
                 android:layout_width="match_parent"
-                android:layout_height="500dp"
+                android:layout_height="600dp"
                 android:layout_margin="30dp" />
         </LinearLayout>
 

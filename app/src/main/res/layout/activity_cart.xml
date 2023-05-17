@@ -10,30 +10,7 @@
     tools:openDrawer="start"
     tools:context=".CartActivity">
 
-    <com.google.android.material.navigation.NavigationView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:id="@+id/nav_view"
-        app:headerLayout="@layout/header"
-        app:menu="@menu/menu_item"
-        android:visibility="gone"
-        android:layout_gravity="start">
 
-
-    </com.google.android.material.navigation.NavigationView>
-<!--    <FrameLayout-->
-<!--        android:id="@+id/container_auto"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:visibility="gone">-->
-<!--        <fragment-->
-<!--            android:id="@+id/autocomplete_fragment"-->
-<!--            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:hint="Search for a location"-->
-<!--            />-->
-<!--    </FrameLayout>-->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"

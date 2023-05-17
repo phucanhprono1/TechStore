@@ -36,7 +36,7 @@ public class OrderItemsAdapter extends RecyclerView.Adapter<OrderItemsAdapter.Or
     public void onBindViewHolder( OrderItemViewHolder holder, int position) {
         OrderItem orderItem = orderItems.get(position);
         holder.productNameTextView.setText(orderItem.getProduct().getProductName());
-        holder.productPriceTextView.setText(String.format(Locale.getDefault(), "%.2f Đ", orderItem.getProduct().getPrice()));
+        holder.productPriceTextView.setText(String.format(Locale.getDefault(), "%.2f$", orderItem.getProduct().getPrice()));
         holder.productQuantityTextView.setText(String.format(Locale.getDefault(), "x%d", orderItem.getQuantity()));
         // Load image from url using Picasso library
         Picasso.get().load(orderItem.getProduct().getImage()).into(holder.productImageView);

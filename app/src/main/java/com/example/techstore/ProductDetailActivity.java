@@ -79,65 +79,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         uid = getIntent().getExtras().getInt("id");
         key = key1;
         String id = String.valueOf(p.getProductId());
-        findViewById(R.id.send_comment).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String comment2 = comment1.getText().toString();
-                String resp_comment = "Cam on da gop y";
-                Integer rate = 1;
-                RequestQueue q = Volley.newRequestQueue(getApplicationContext());
 
-                try {
-                    JSONObject jsonbody = new JSONObject();
-                    jsonbody.put("comment", comment2);
-                    jsonbody.put("rate", rate);
-                    jsonbody.put("resp_comment", resp_comment);
-                    jsonbody.put("product", id);
-                    jsonbody.put("customer", StaticConfig.UID);
-                    final String jsb = jsonbody.toString();
-                    StringRequest sr = new StringRequest(Request.Method.POST, sendComment, new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            Log.d("response>>",response);
-                            if (response.equalsIgnoreCase("Send Successfully")) {
-                                Toast.makeText(getApplicationContext(), "Send Successfully", Toast.LENGTH_SHORT).show();
-                                Intent i = new Intent(ProductDetailActivity.this, ProductDetailActivity.class);
-                                startActivity(i);
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.d("ERROR>>",error.toString());
-                        }
-                    }) {
-                        @Override
-                        public String getBodyContentType() {
-                            return "application/json; charset=utf-8";
-                        }
-
-                        @Override
-                        public byte[] getBody() {
-                            try {
-                                return jsb.getBytes("utf-8");
-                            } catch (UnsupportedEncodingException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    };
-                    q.add(sr);
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-
-
-//        Toast.makeText(getApplicationContext(),"key:"+key+"key1"+key1,Toast.LENGTH_SHORT).show();
-//        currentCustomerDTO = getIntent().getParcelableExtra("id");
-//        String uid = String.valueOf(currentCustomerDTO.getId());
-//        int uid = Integer.parseInt(userId);
 
         ImageView thumbnail = (ImageView) findViewById(R.id.product_pic);
         TextView name = (TextView) findViewById(R.id.name_prod);
@@ -171,13 +113,13 @@ public class ProductDetailActivity extends AppCompatActivity {
                 }
                 try {
                     Glide.with(getApplicationContext()).load(Uri.parse(response.getString("image"))).into(thumbnail);
-                    name.setText(response.getString("productName"));
-                    manufacturer.setText(response.getString("manufacturer"));
+                    name.setText("Name: "+response.getString("productName"));
+                    manufacturer.setText("Manufacturer: "+response.getString("manufacturer"));
                     double pr = response.getDouble("price");
                     float fl = (float)pr;
                     String formattedNumber = String.format("%.1f",fl);
-                    price.setText(formattedNumber);
-                    des.setText(response.getString("description"));
+                    price.setText("Price: $"+formattedNumber);
+                    des.setText("Description: "+response.getString("description"));
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
@@ -248,21 +190,17 @@ public class ProductDetailActivity extends AppCompatActivity {
                 JsonObjectRequest jor1 = new JsonObjectRequest(Request.Method.POST, cartapi+"/"+ StaticConfig.UID +"/"+id+"/"+quant, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+
                         Intent i = new Intent(ProductDetailActivity.this,CartActivity.class);
                         try {
                             i.putExtra("caid",response.getString("cartId"));
-//                            JSONArray jar = new JSONArray(response.getJSONArray("cartItems"));
-//                            for(int i1 = 0; i1 < jar.length(); i1++){
-//                                JSONObject jor = jar.getJSONObject(i1);
-//                                i.putExtra("pid"+i1,jor.getString("productId"));
-//                                i.putExtra("quan"+i1,jor.getString("quantity"));
-//                            }
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
                         i.putExtra("key",key);
                         i.putExtra("id",uid);
                         startActivity(i);
+                        numb.setText("");
                     }
                 },
 
@@ -272,15 +210,7 @@ public class ProductDetailActivity extends AppCompatActivity {
 
                             }
                         }){
-//                    @Override
-//                    public HashMap<String, String> getParams() {
-//                        // Thêm các tham số cho POST request
-//                        HashMap<String, String> params = new HashMap<>();
-//                        params.put("customerId", userId);
-//                        params.put("productId", id);
-//                        params.put("quantity",quant);
-//                        return params;
-//                    }
+
                 };
                 q.add(jor1);
 
@@ -289,7 +219,98 @@ public class ProductDetailActivity extends AppCompatActivity {
 
 
         });
+        findViewById(R.id.send_comment).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String comment2 = comment1.getText().toString();
+                String resp_comment = "Cam on da gop y";
+                Integer rate = 1;
+                RequestQueue q = Volley.newRequestQueue(getApplicationContext());
 
+                try {
+                    JSONObject jsonbody = new JSONObject();
+                    jsonbody.put("comment", comment2);
+                    jsonbody.put("rate", rate);
+                    jsonbody.put("resp_comment", resp_comment);
+                    jsonbody.put("product", id);
+                    jsonbody.put("customer", StaticConfig.UID);
+                    final String jsb = jsonbody.toString();
+                    StringRequest sr = new StringRequest(Request.Method.POST, sendComment, new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            Log.d("response>>",response);
+                            Toast.makeText(getApplicationContext(), "Send Successfully", Toast.LENGTH_SHORT).show();
+
+
+                            commentList.clear();
+                            comment1.setText("");
+                            JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, getAllComment+p.getProductId(),null,
+                                    new Response.Listener<JSONArray>() {
+                                        @Override
+                                        public void onResponse(JSONArray response) {
+                                            Log.d("COMMENT>>>",""+response.length());
+                                            for (int i = 0; i < response.length(); i++) {
+                                                try {
+                                                    JSONObject catJson = response.getJSONObject(i);
+                                                    Comment c = new Comment();
+                                                    c.setComment_id(catJson.getInt("comment_id"));
+                                                    c.setComment(catJson.getString("comment"));
+                                                    c.setResp_comment(catJson.getString("resp_comment"));
+                                                    c.setRate(catJson.getInt("rate"));
+                                                    commentList.add(c);
+                                                    //CommentAdapter.setComm(commentList);
+                                                }
+
+                                                catch (JSONException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                            }
+                                            Log.d("commentList>>>",""+commentList.size());
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+
+                                                    adapter.setComm(commentList);
+                                                }
+                                            });
+                                        }
+                                    }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+
+                                }
+                            });
+                            q.add(stringRequest);
+
+
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("ERROR>>",error.toString());
+                        }
+                    }) {
+                        @Override
+                        public String getBodyContentType() {
+                            return "application/json; charset=utf-8";
+                        }
+
+                        @Override
+                        public byte[] getBody() {
+                            try {
+                                return jsb.getBytes("utf-8");
+                            } catch (UnsupportedEncodingException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    };
+                    q.add(sr);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        });
 
 
 
