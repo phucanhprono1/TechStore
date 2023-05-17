@@ -168,25 +168,14 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
 
-        StaticConfig.TOTAL=totalFee.getText().toString();
+
         removeall = findViewById(R.id.btnRemoveAll);
 
         map.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                swipeRefreshLayout.setVisibility(View.GONE);
-                // Launch the MapFragment
-                MapsFragment mapsFragment = new MapsFragment();
-                //Lấy FragmentManager của Activity hiện tại
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                //Bắt đầu một FragmentTransaction mới
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                //Thay thế Fragment hiện tại (CartFragment) bằng MapFragment
-                transaction.replace(R.id.container, mapsFragment);
-                //Thêm transaction vào BackStack, để khi nhấn nút back trên điện thoại thì quay lại CartFragment
-                transaction.addToBackStack(null);
-                //Submit transaction
-                transaction.commit();
+                Intent intent = new Intent(CartActivity.this, MapsActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -248,7 +237,7 @@ public class CartActivity extends AppCompatActivity implements ItemCartAdapter.A
                         p.setProductName(prod.getString("productName"));
                         p.setPrice((float) prod.getDouble("price"));
                         p.setImage(prod.getString("image"));
-
+                        StaticConfig.TOTAL= String.valueOf(prod.getDouble("price"));
                         itemCart.setProduct(p);
                         itemCart.setQuantity(item.getInt("quantity"));
                         itc.add(itemCart);

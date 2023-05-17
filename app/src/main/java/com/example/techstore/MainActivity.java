@@ -20,9 +20,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager.widget.ViewPager;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -64,9 +67,9 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity implements CategoryAdapter.CategoryClickListener, SwipeRefreshLayout.OnRefreshListener {
-    String logoutapi = new LocalNetwork().getUrl()+"/auth/logout/";
-    String currentuser = new LocalNetwork().getUrl()+"/auth/currentUser";
-    String getAllCategory = new LocalNetwork().getUrl()+"/category/getAll";
+    String logoutapi = new LocalNetwork().getUrl() + "/auth/logout/";
+    String currentuser = new LocalNetwork().getUrl() + "/auth/currentUser";
+    String getAllCategory = new LocalNetwork().getUrl() + "/category/getAll";
     private CategoryAdapter categoryAdapter;
     String key;
     View header;
@@ -76,10 +79,11 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
     DatabaseReference userReference = FirebaseDatabase.getInstance("https://techecommerceserver-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("currentUser");
     private RequestQueue q;
     SwipeRefreshLayout swipeRefreshLayout;
-    int uid=0;
-    List<Category> category=new ArrayList<>();
+    int uid = 0;
+    List<Category> category = new ArrayList<>();
     private ApiService logoutApi;
 
+    private ViewPagerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,11 +92,11 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         NavigationView nv = findViewById(R.id.nav_view);
         header = nv.getHeaderView(0);
         drawerLayout = findViewById(R.id.drawer_layout);
-        toolbar= findViewById(R.id.toolbar);
-        currentCustomerDTO=new CurrentCustomerDTO();
+        toolbar = findViewById(R.id.toolbar);
+        currentCustomerDTO = new CurrentCustomerDTO();
         setSupportActionBar(toolbar);
         nv.bringToFront();
-        ActionBarDrawerToggle toggle=new ActionBarDrawerToggle(this,drawerLayout ,toolbar,R.string.navigation_drawer_open,R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout2);
@@ -102,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         q = Volley.newRequestQueue(getApplicationContext());
         Bundle b = getIntent().getExtras();
 
-        FrameLayout frameLayout = findViewById(R.id.fragment_container);
+        ViewPager frameLayout = findViewById(R.id.fragment_container);
         frameLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -120,15 +124,15 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
             }
         });
         swipeRefreshLayout.setEnabled(true);
-        TextView phone  = header.findViewById(R.id.phonenumberLabel);
+        TextView phone = header.findViewById(R.id.phonenumberLabel);
 
         key = b.getString("key");
         StaticConfig.CURRENT_KEY = key;
 
-        uid=b.getInt("id");
+        uid = b.getInt("id");
 //        StaticConfig.UID= String.valueOf(uid);
 
-        JsonObjectRequest rqs = new JsonObjectRequest(Request.Method.GET, currentuser+"?key="+StaticConfig.CURRENT_KEY,null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest rqs = new JsonObjectRequest(Request.Method.GET, currentuser + "?key=" + StaticConfig.CURRENT_KEY, null, new Response.Listener<JSONObject>() {
 
             @Override
             public void onResponse(JSONObject response) {
@@ -149,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
             public void onErrorResponse(VolleyError error) {
 
             }
-        }){
+        }) {
         };
         q.add(rqs);
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -160,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(ApiService.class);
-                Call<String> call = apiService.logout(key,"customer");
+                Call<String> call = apiService.logout(key, "customer");
                 call.enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(Call<String> call, retrofit2.Response<String> response) {
@@ -175,25 +179,29 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
                 });
             }
         });
-        SearchFragment searchFragment=(SearchFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new SearchFragment()).commit();
+        SearchFragment searchFragment = (SearchFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SearchFragment()).commit();
+        adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFrag(new SearchFragment(), "Search");
+        adapter.addFrag(new OrderViewFragment(), "Order");
+        frameLayout.setAdapter(adapter);
         nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch(item.getItemId()) {
+                switch (item.getItemId()) {
                     case R.id.cart_button:
-                        Intent intent1=new Intent(getApplicationContext(),CartActivity.class);
-                        intent1.putExtra("key",key);
-                        intent1.putExtra("id",uid);
+                        Intent intent1 = new Intent(getApplicationContext(), CartActivity.class);
+                        intent1.putExtra("key", key);
+                        intent1.putExtra("id", uid);
                         startActivity(intent1);
                         break;
                     case R.id.log_out:
 
-                        Intent intent2=new Intent(MainActivity.this,LoginOptionActivity.class);
+                        Intent intent2 = new Intent(MainActivity.this, LoginOptionActivity.class);
                         try {
                             JSONObject jsonbody = new JSONObject();
-                            jsonbody.put("role","customer");
-                            jsonbody.put("key",key);
+                            jsonbody.put("role", "customer");
+                            jsonbody.put("key", key);
                             String requestBody = jsonbody.toString();
                             StringRequest sr = new StringRequest(Request.Method.POST, logoutapi, new Response.Listener<String>() {
                                 @Override
@@ -208,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
                                 public void onErrorResponse(VolleyError error) {
 
                                 }
-                            }){
+                            }) {
                                 @Override
                                 public HashMap<String, String> getParams() {
                                     // Thêm các tham số cho POST request
@@ -226,22 +234,15 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
                         startActivity(intent2);
                         break;
                     case R.id.search_bar:
-
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, new SearchFragment())
-                                .commit();
-
+                        frameLayout.setCurrentItem(0); // Assuming the position of the SearchFragment is 0
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
+
                     case R.id.order_history:
-
-
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, new OrderViewFragment())
-                            .commit();
-
+                        frameLayout.setCurrentItem(1); // Assuming the position of the OrderViewFragment is 1
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
+
                 }
 
                 return true;
@@ -250,21 +251,19 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         });
 
 //        List<Category> category=new ArrayList<>();
-        JsonArrayRequest requestCate = new JsonArrayRequest(Request.Method.GET, getAllCategory,null, new Response.Listener<JSONArray>() {
+        JsonArrayRequest requestCate = new JsonArrayRequest(Request.Method.GET, getAllCategory, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
 
                 for (int i = 0; i < response.length(); i++) {
                     try {
                         JSONObject catJson = response.getJSONObject(i);
-                        Category cat= new Category(catJson.getInt("categoryId"),catJson.getString("categoryName"));
+                        Category cat = new Category(catJson.getInt("categoryId"), catJson.getString("categoryName"));
                         category.add(cat);
                         categoryAdapter.setCate(category);
 
 
-                    }
-
-                    catch (JSONException e) {
+                    } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
                 }
@@ -274,13 +273,13 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
             public void onErrorResponse(VolleyError error) {
 
             }
-        }){
+        }) {
 
         };
         q.add(requestCate);
-        categoryAdapter = new CategoryAdapter(category,this);
+        categoryAdapter = new CategoryAdapter(category, this);
         RecyclerView rcv = findViewById(R.id.categories);
-        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this,RecyclerView.HORIZONTAL,false);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
         rcv.setLayoutManager(linearLayoutManager);
         rcv.setAdapter(categoryAdapter);
 //        Intent serviceIntent = new Intent(this, MyService.class);
@@ -288,14 +287,12 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
     }
 
 
-
-
     @Override
     public void onItemClick(Category cate) {
-        Intent i=new Intent(MainActivity.this,ProductActivity.class);
+        Intent i = new Intent(MainActivity.this, ProductActivity.class);
         i.putExtra("cat", cate);
-        i.putExtra("key1",key);
-        i.putExtra("id",uid);
+        i.putExtra("key1", key);
+        i.putExtra("id", uid);
         startActivity(i);
     }
 
@@ -306,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(ApiService.class);
-        Call<String> call = apiService.logout(key,"customer");
+        Call<String> call = apiService.logout(key, "customer");
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, retrofit2.Response<String> response) {
@@ -328,21 +325,19 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         category.clear();
         swipeRefreshLayout.setRefreshing(false);
 //        RequestQueue q = Volley.newRequestQueue(this);
-        JsonArrayRequest requestCate = new JsonArrayRequest(Request.Method.GET, getAllCategory,null, new Response.Listener<JSONArray>() {
+        JsonArrayRequest requestCate = new JsonArrayRequest(Request.Method.GET, getAllCategory, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
 
                 for (int i = 0; i < response.length(); i++) {
                     try {
                         JSONObject catJson = response.getJSONObject(i);
-                        Category cat= new Category(catJson.getInt("categoryId"),catJson.getString("categoryName"));
+                        Category cat = new Category(catJson.getInt("categoryId"), catJson.getString("categoryName"));
                         category.add(cat);
                         categoryAdapter.setCate(category);
 
 
-                    }
-
-                    catch (JSONException e) {
+                    } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
                 }
@@ -352,11 +347,12 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
             public void onErrorResponse(VolleyError error) {
 
             }
-        }){
+        }) {
 
         };
         q.add(requestCate);
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -365,4 +361,35 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         startService(intent);
     }
 
+    class ViewPagerAdapter extends FragmentPagerAdapter {
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+
+        public void addFrag(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+
+            // return null to display only the icon
+            return null;
+        }
+
+    }
 }

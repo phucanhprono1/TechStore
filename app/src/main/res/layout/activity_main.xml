@@ -61,10 +61,10 @@
                 android:layout_marginTop="130dp"
                 android:layout_marginEnd="30dp" />
 
-            <FrameLayout
+            <androidx.viewpager.widget.ViewPager
                 android:id="@+id/fragment_container"
                 android:layout_width="match_parent"
-                android:layout_height="500dp"
+                android:layout_height="600dp"
                 android:layout_below="@+id/categories"
                 android:layout_marginTop="0dp" />
 

@@ -20,4 +20,5 @@
     <string name="lbl_zptranstoken">zptranstoken</string>
     <string name="to_webview">To WebView</string>
     <string name="appID">2553</string>
+    <string name="title_activity_maps">MapsActivity</string>
 </resources>
