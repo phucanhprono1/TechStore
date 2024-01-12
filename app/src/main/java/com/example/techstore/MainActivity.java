@@ -1,15 +1,11 @@
 package com.example.techstore;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -39,7 +35,6 @@ import com.example.techstore.adapter.CategoryAdapter;
 import com.example.techstore.config.StaticConfig;
 import com.example.techstore.models.Category;
 import com.example.techstore.models.CurrentCustomerDTO;
-
 import com.example.techstore.retrofit.ApiService;
 import com.facebook.login.LoginManager;
 import com.google.android.material.navigation.NavigationView;
@@ -47,20 +42,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
@@ -82,7 +71,8 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
     int uid = 0;
     List<Category> category = new ArrayList<>();
     private ApiService logoutApi;
-
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
     private ViewPagerAdapter adapter;
 
     @Override
@@ -90,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         NavigationView nv = findViewById(R.id.nav_view);
+        sharedPreferences = getSharedPreferences("dataLogin", MODE_PRIVATE);
+        editor = sharedPreferences.edit();
         header = nv.getHeaderView(0);
         drawerLayout = findViewById(R.id.drawer_layout);
         toolbar = findViewById(R.id.toolbar);
@@ -107,13 +99,10 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         Bundle b = getIntent().getExtras();
 
         ViewPager frameLayout = findViewById(R.id.fragment_container);
-        frameLayout.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                // Vô hiệu hóa tính năng SwipeRefreshLayout khi người dùng vuốt
-                swipeRefreshLayout.setEnabled(false);
-                return false;
-            }
+        frameLayout.setOnTouchListener((view, motionEvent) -> {
+            // Vô hiệu hóa tính năng SwipeRefreshLayout khi người dùng vuốt
+            swipeRefreshLayout.setEnabled(false);
+            return false;
         });
         TextView ct = findViewById(R.id.category_title_textview);
         ct.setOnTouchListener(new View.OnTouchListener() {
@@ -168,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
                 call.enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(Call<String> call, retrofit2.Response<String> response) {
+                        sharedPreferences.edit().clear().apply();
                         FirebaseAuth.getInstance().signOut();
                         LoginManager.getInstance().logOut();
                     }
@@ -207,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
                                 @Override
                                 public void onResponse(String response) {
                                     Intent i = new Intent(MainActivity.this, LoginOptionActivity.class);
+                                    sharedPreferences.edit().clear().apply();
                                     userReference.child(key).removeValue();
                                     LoginManager.getInstance().logOut();
                                     startActivity(i);
@@ -282,8 +273,6 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
         rcv.setLayoutManager(linearLayoutManager);
         rcv.setAdapter(categoryAdapter);
-//        Intent serviceIntent = new Intent(this, MyService.class);
-//        startService(serviceIntent);
     }
 
 
@@ -369,6 +358,7 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.C
             super(manager);
         }
 
+        @NonNull
         @Override
         public Fragment getItem(int position) {
             return mFragmentList.get(position);

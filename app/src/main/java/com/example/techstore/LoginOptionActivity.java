@@ -3,8 +3,10 @@ package com.example.techstore;
 import static android.content.ContentValues.TAG;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -51,8 +53,11 @@ public class LoginOptionActivity extends AppCompatActivity {
 
 //    String regapi = new LocalNetwork().getUrl()+"/auth/register";
     String logapi = new LocalNetwork().getUrl()+"/auth/loginfb";
+    String getcurrentUserId = new LocalNetwork().getUrl()+"/auth/getcurrentuserid";
     private FirebaseAuth mAuth;
     private CallbackManager mCallbackManager;
+    SharedPreferences.Editor editor;
+    SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +65,17 @@ public class LoginOptionActivity extends AppCompatActivity {
         FacebookSdk.sdkInitialize(getApplicationContext());
         
         Button signinacc = findViewById(R.id.sign_in_account);
+        sharedPreferences = getSharedPreferences("dataLogin", MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+        if(sharedPreferences.getString("key","").length()>0){
+            Intent i = new Intent(LoginOptionActivity.this, MainActivity.class);
+            i.putExtra("username",sharedPreferences.getString("username",""));
+            StaticConfig.UID = sharedPreferences.getString("id","");
+            i.putExtra("key",sharedPreferences.getString("key",""));
+
+            startActivity(i);
+        }
+
         signinacc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -142,6 +158,11 @@ public class LoginOptionActivity extends AppCompatActivity {
 //                            StaticConfig.CURRENT_KEY = response.getString("key");
                             i.putExtra("key",response.getString("key"));
                             i.putExtra("id",response.getInt("id"));
+
+                            editor.putString("key", response.getString("key"));
+                            editor.putString("username", response.getString("username"));
+                            editor.putInt("id", response.getInt("id"));
+                            editor.commit();
                             startActivity(i);
                         }
                         Toast.makeText(getApplicationContext(),response.getString("response"),Toast.LENGTH_SHORT).show();
@@ -168,4 +189,5 @@ public class LoginOptionActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
     }
+
 }

@@ -1,6 +1,7 @@
 package com.example.techstore;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -25,13 +26,16 @@ import org.json.JSONObject;
 public class LoginActivity extends AppCompatActivity {
     LocalNetwork lc = new LocalNetwork();
     String api = lc.getUrl()+"/auth/login";
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         EditText mUsername = (EditText) findViewById(R.id.editTextUsername);
         EditText mPasswordField = findViewById(R.id.editTextPassword);
-
+        sharedPreferences = getSharedPreferences("dataLogin",MODE_PRIVATE);
+        editor = sharedPreferences.edit();
         Button btnLogin = (Button) findViewById(R.id.buttonSignIn);
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,6 +68,11 @@ public class LoginActivity extends AppCompatActivity {
                                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
                                     i.putExtra("username",response.getString("username"));
                                     StaticConfig.UID = response.getString("id");
+
+                                    editor.putString("key",response.getString("key"));
+                                    editor.putString("username",response.getString("username"));
+                                    editor.putString("id",response.getString("id"));
+                                    editor.apply();
 //                                    StaticConfig.CURRENT_KEY = response.getString("key");
                                     i.putExtra("key",response.getString("key"));
                                     i.putExtra("id",response.getString("id"));
